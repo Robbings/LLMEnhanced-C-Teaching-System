@@ -183,3 +183,7 @@ USE_AUTH = True
 
 # 大模型配置
 LLM_MODEL = "deepseek-v3"
+LLM_MODEL_TOOL = "qwen-max"
+
+# 项目路径 本文件路径的上级路径
+PROJECT_PATH = "\\".join(os.path.dirname(os.path.abspath(__file__)).split('\\')[0:-1])

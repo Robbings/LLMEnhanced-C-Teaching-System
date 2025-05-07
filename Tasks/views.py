@@ -31,7 +31,7 @@ class ChatCompletionView(APIView):
                 full_content += chunk
 
             response = {
-                "id": "chatcmpl-1234567890",
+                "id": "chatcmpl-non-streaming",
                 "object": "chat.completion",
                 "created": int(time.time()),
                 "model": model,
@@ -71,6 +71,5 @@ class ChatCompletionView(APIView):
                 ]
             }
             yield f"data: {json.dumps(content)}\n\n"
-            # time.sleep(0.2)  # 模拟逐步生成内容
         # 结束标志
         yield "data: [DONE]\n\n"
