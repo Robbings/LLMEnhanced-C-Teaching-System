@@ -27,5 +27,5 @@ urlpatterns = [
     path('user/', include('Identity.urls')),
     path('task/', include('Tasks.urls')),
     path('v1/chat/completions',  ChatCompletionView.as_view(), name='chat-completion'),
-    # path('analysis/', include('Analysis.urls')),
+    path('analysis/', include('Analysis.urls')),
 ]
