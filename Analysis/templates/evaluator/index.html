@@ -29,6 +29,33 @@
         </div>
         {% endif %}
 
+        <!-- Problem Statement Section -->
+        <div class="card mb-4">
+            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                <h3>Problem Statement</h3>
+                <button id="edit-problem-btn" class="btn btn-outline-light">Edit</button>
+                <button id="save-problem-btn" class="btn btn-success" style="display: none;">Save</button>
+            </div>
+            <div class="card-body">
+                <form id="problem-form">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="problem_id" class="form-label">Problem ID:</label>
+                        <input type="text" id="problem_id" name="id" class="form-control" value="{{ current_problem.id }}" readonly>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="problem_content" class="form-label">Problem Content (Markdown):</label>
+                        <textarea id="problem_content" name="content" class="form-control problem-textarea" rows="10" readonly>{{ current_problem.content }}</textarea>
+                    </div>
+                </form>
+
+                <div id="problem-display" class="markdown-body mt-3">
+                    <!-- Rendered markdown will be displayed here -->
+                </div>
+            </div>
+        </div>
+
         <!-- Code Submission Section -->
         <div class="card mb-4">
             <div class="card-header bg-primary text-white">
@@ -38,6 +65,7 @@
                 <form method="post" action="{% url 'evaluator:submit_code' %}" enctype="multipart/form-data">
                     {% csrf_token %}
                     {{ code_form.submission_type }}
+                    <input type="hidden" name="problem_id" id="code_problem_id" value="{{ current_problem.id }}">
 
                     <div class="mb-3">
                         <label for="id_code_file" class="form-label">Upload Code File:</label>
@@ -50,7 +78,7 @@
                         <textarea name="code_text" id="id_code_text" class="form-control code-textarea"></textarea>
                     </div>
 
-                    <button type="submit" class="btn btn-primary">提交代码</button>
+                    <button type="submit" class="btn btn-primary">Submit Code</button>
                 </form>
 
                 {% if code_submissions %}
@@ -82,11 +110,12 @@
                 <form method="post" action="{% url 'evaluator:submit_test' %}" enctype="multipart/form-data">
                     {% csrf_token %}
                     {{ test_form.submission_type }}
+                    <input type="hidden" name="problem_id" id="test_problem_id" value="{{ current_problem.id }}">
 
                     <div class="mb-3">
-                        <label for="id_test_file" class="form-label">Upload Test File:</label>
+                        <label for="id_test_file" class="form-label">Upload Test Case File:</label>
                         <input type="file" name="code_file" id="id_test_file" class="form-control">
-                        <div class="form-text">Upload a test file or paste your test cases below.</div>
+                        <div class="form-text">Upload a test case file or paste your test cases below.</div>
                     </div>
 
                     <div class="mb-3">
@@ -94,12 +123,12 @@
                         <textarea name="code_text" id="id_test_text" class="form-control code-textarea"></textarea>
                     </div>
 
-                    <button type="submit" class="btn btn-success">样例提交</button>
+                    <button type="submit" class="btn btn-success">Submit Test Cases</button>
                 </form>
 
                 {% if test_submissions %}
                 <div class="mt-4">
-                    <h5>Recent Test Submissions:</h5>
+                    <h5>Recent Test Case Submissions:</h5>
                     <ul class="list-group">
                         {% for submission in test_submissions %}
                         <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -147,6 +176,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/codemirror.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/mode/javascript/javascript.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/mode/python/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.3/mode/markdown/markdown.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.8.0/lib/core.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.8.0/lib/languages/python.min.js"></script>

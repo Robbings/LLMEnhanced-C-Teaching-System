@@ -1,3 +1,4 @@
+# file_name = task_decomposition.py
 from langchain_openai import ChatOpenAI
 from langchain.schema import HumanMessage
 from langgraph.graph import StateGraph, END
@@ -33,11 +34,12 @@ def validate_task_input(state: TaskState, writer: StreamWriter) -> TaskState:
     user_input = state["user_input"]
     messages = [
         HumanMessage(
-            content=f"请判断这个输入是否是一个编程任务，并且可以被分解为多个编程子任务，仅回答 是 或 否：'{user_input}'"
+            content=f"请判断这个输入是否是一个编程任务，并且可以被分解为多个编程子任务，编程任务可以是一个需要编程解决的问题，也可以是一道编程题目等。仅回答 是 或 否：'{user_input}'"
         )
     ]
     response = llm.invoke(messages)
     valid = "是" in response.content
+    # DEBUG!
     return {**state, "valid": valid}
 
 
@@ -155,6 +157,7 @@ def chat(message):
                 yield content
 
 
-# 示例调用（async）
-if __name__ == "__main__":
-    _run_task_decomposition("u123", "chat001", "设计一个函数，找到列表中的最大值。")
+# # 示例调用（async）
+# if __name__ == "__main__":
+#     _run_task_decomposition("u123", "chat001", "设计一个函数，找到列表中的最大值。")
+#

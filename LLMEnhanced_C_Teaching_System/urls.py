@@ -19,13 +19,16 @@ from django.conf.urls import include
 from django.contrib import admin
 from django.urls import path
 
+from Analysis.views import validate_problem_content
 from Tasks.views import ChatCompletionView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
 
     path('user/', include('Identity.urls')),
-    path('task/', include('Tasks.urls')),
-    path('v1/chat/completions',  ChatCompletionView.as_view(), name='chat-completion'),
-    path('analysis/', include('Analysis.urls')),
+    path('', include('Tasks.urls')),
+
+    path('analysis/', include('Analysis.urls', namespace='Analysis')),
+    # AJAX验证API
+    # path('api/validate-content/', validate_problem_content, name='validate_content'),
 ]

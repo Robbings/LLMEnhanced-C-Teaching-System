@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>提交作业 - {{ problem.name }}</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .main-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            margin: 2rem auto;
+            max-width: 1000px;
+            overflow: hidden;
+        }
+
+        .header-section {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .form-section {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .method-selector {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-control, .form-select {
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #10b981;
+            box-shadow: 0 0 0 0.2rem rgba(16, 185, 129, 0.25);
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #10b981, #059669);
+            border: none;
+            border-radius: 12px;
+            padding: 0.75rem 2rem;
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+            color: white;
+        }
+
+        .form-check-input {
+            margin-right: 0.5rem;
+        }
+
+        .code-textarea {
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .file-upload-area {
+            border: 2px dashed #cbd5e0;
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload-area:hover {
+            border-color: #10b981;
+            background-color: #f0fdf4;
+        }
+
+        .problem-info {
+            background: #eff6ff;
+            border-left: 4px solid #3b82f6;
+            border-radius: 0 12px 12px 0;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .alert-info {
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="main-container">
+            <!-- Header -->
+            <div class="header-section">
+                <h1><i class="fas fa-upload"></i> 提交作业</h1>
+                <p>{{ problem.name }}</p>
+            </div>
+
+            <!-- Content -->
+            <div class="form-section">
+                <!-- 题目信息 -->
+                <div class="problem-info">
+                    <h5><i class="fas fa-info-circle"></i> 题目信息</h5>
+                    <p class="mb-1"><strong>题目类型：</strong>
+                        {% if problem.problem_type == 1 %}任务分解
+                        {% elif problem.problem_type == 2 %}代码编写
+                        {% else %}整体训练{% endif %}
+                    </p>
+                    <p class="mb-1"><strong>需要测试样例：</strong>
+                        {% if problem.requires_sample %}是{% else %}否{% endif %}
+                    </p>
+                    {% if problem.deadline %}
+                    <p class="mb-0"><strong>截止时间：</strong> {{ problem.deadline|date:"Y-m-d H:i" }}</p>
+                    {% endif %}
+                </div>
+
+                {% if submission %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    您已经提交过此题目。重新提交将覆盖之前的提交内容。
+                </div>
+                {% endif %}
+
+                <!-- 提交表单 -->
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <!-- 代码提交部分 -->
+                    <div class="mb-4">
+                        <h5><i class="fas fa-code"></i> 代码提交</h5>
+
+                        <!-- 提交方式选择 -->
+                        <div class="method-selector">
+                            <label class="form-label fw-bold">选择提交方式：</label>
+                            <div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="code_input_method"
+                                           id="code_text" value="text" checked>
+                                    <label class="form-check-label" for="code_text">
+                                        <i class="fas fa-keyboard"></i> 文本输入
+                                    </label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="code_input_method"
+                                           id="code_file" value="file">
+                                    <label class="form-check-label" for="code_file">
+                                        <i class="fas fa-file-upload"></i> 文件上传
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 文本输入区域 -->
+                        <div id="code_text_area">
+                            <label for="{{ form.code_content.id_for_label }}" class="form-label">
+                                {{ form.code_content.label }}
+                            </label>
+                            {{ form.code_content }}
+                            {% if form.code_content.errors %}
+                                <div class="text-danger small">{{ form.code_content.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- 文件上传区域 -->
+                        <div id="code_file_area" style="display: none;">
+                            <label for="{{ form.code_file.id_for_label }}" class="form-label">
+                                {{ form.code_file.label }}
+                            </label>
+                            <div class="file-upload-area">
+                                {{ form.code_file }}
+                                <div class="mt-2">
+                                    <i class="fas fa-cloud-upload-alt fa-2x text-muted"></i>
+                                    <p class="text-muted mt-2">支持 .py, .cpp, .c, .java, .js, .txt 等格式</p>
+                                </div>
+                            </div>
+                            {% if form.code_file.errors %}
+                                <div class="text-danger small">{{ form.code_file.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- 测试样例提交部分（如果需要） -->
+                    {% if problem.requires_sample %}
+                    <div class="mb-4">
+                        <h5><i class="fas fa-vial"></i> 测试样例提交</h5>
+
+                        <!-- 提交方式选择 -->
+                        <div class="method-selector">
+                            <label class="form-label fw-bold">选择提交方式：</label>
+                            <div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="sample_input_method"
+                                           id="sample_text" value="text" checked>
+                                    <label class="form-check-label" for="sample_text">
+                                        <i class="fas fa-keyboard"></i> 文本输入
+                                    </label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="sample_input_method"
+                                           id="sample_file" value="file">
+                                    <label class="form-check-label" for="sample_file">
+                                        <i class="fas fa-file-upload"></i> 文件上传
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 文本输入区域 -->
+                        <div id="sample_text_area">
+                            <label for="{{ form.sample_content.id_for_label }}" class="form-label">
+                                {{ form.sample_content.label }}
+                            </label>
+                            {{ form.sample_content }}
+                            {% if form.sample_content.errors %}
+                                <div class="text-danger small">{{ form.sample_content.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- 文件上传区域 -->
+                        <div id="sample_file_area" style="display: none;">
+                            <label for="{{ form.sample_file.id_for_label }}" class="form-label">
+                                {{ form.sample_file.label }}
+                            </label>
+                            <div class="file-upload-area">
+                                {{ form.sample_file }}
+                                <div class="mt-2">
+                                    <i class="fas fa-cloud-upload-alt fa-2x text-muted"></i>
+                                    <p class="text-muted mt-2">支持 .txt, .in, .out 等格式</p>
+                                </div>
+                            </div>
+                            {% if form.sample_file.errors %}
+                                <div class="text-danger small">{{ form.sample_file.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- 表单错误信息 -->
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {% for error in form.non_field_errors %}
+                            <i class="fas fa-exclamation-triangle"></i> {{ error }}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <!-- 提交按钮 -->
+                    <div class="text-center">
+                        <a href="{% url 'Analysis:view_problem' problem.id %}" class="btn btn-outline-secondary me-3">
+                            <i class="fas fa-arrow-left"></i> 返回题目
+                        </a>
+                        <button type="submit" class="btn btn-submit">
+                            <i class="fas fa-paper-plane"></i> 提交作业
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 代码提交方式切换
+        document.querySelectorAll('input[name="code_input_method"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const textArea = document.getElementById('code_text_area');
+                const fileArea = document.getElementById('code_file_area');
+
+                if (this.value === 'text') {
+                    textArea.style.display = 'block';
+                    fileArea.style.display = 'none';
+                    // 清空文件输入
+                    document.querySelector('input[name="code_file"]').value = '';
+                } else {
+                    textArea.style.display = 'none';
+                    fileArea.style.display = 'block';
+                    // 清空文本输入
+                    document.querySelector('textarea[name="code_content"]').value = '';
+                }
+            });
+        });
+
+        // 样例提交方式切换
+        document.querySelectorAll('input[name="sample_input_method"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const textArea = document.getElementById('sample_text_area');
+                const fileArea = document.getElementById('sample_file_area');
+
+                if (this.value === 'text') {
+                    textArea.style.display = 'block';
+                    fileArea.style.display = 'none';
+                    // 清空文件输入
+                    document.querySelector('input[name="sample_file"]').value = '';
+                } else {
+                    textArea.style.display = 'none';
+                    fileArea.style.display = 'block';
+                    // 清空文本输入
+                    document.querySelector('textarea[name="sample_content"]').value = '';
+                }
+            });
+        });
+
+        // 文件拖拽上传
+        ['code_file_area', 'sample_file_area'].forEach(areaId => {
+            const area = document.getElementById(areaId);
+            if (area) {
+                const fileInput = area.querySelector('input[type="file"]');
+
+                area.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    this.style.backgroundColor = '#f0fdf4';
+                    this.style.borderColor = '#10b981';
+                });
+
+                area.addEventListener('dragleave', function(e) {
+                    e.preventDefault();
+                    this.style.backgroundColor = '';
+                    this.style.borderColor = '#cbd5e0';
+                });
+
+                area.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    this.style.backgroundColor = '';
+                    this.style.borderColor = '#cbd5e0';
+
+                    const files = e.dataTransfer.files;
+                    if (files.length > 0) {
+                        fileInput.files = files;
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

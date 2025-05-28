@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>创建程序设计题目 - 智能教学系统</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --secondary-color: #06b6d4;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --dark-color: #1f2937;
+            --light-bg: #f8fafc;
+            --border-color: #e2e8f0;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .main-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            margin: 2rem auto;
+            max-width: 900px;
+            overflow: hidden;
+        }
+
+        .header-section {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .header-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 0;
+        }
+
+        .form-section {
+            padding: 2.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 2rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-control, .form-select {
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(79, 70, 229, 0.25);
+            transform: translateY(-1px);
+        }
+
+        .markdown-editor {
+            position: relative;
+        }
+
+        .markdown-editor textarea {
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            line-height: 1.6;
+            resize: vertical;
+        }
+
+        .markdown-preview {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-top: 1rem;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .form-check {
+            background: var(--light-bg);
+            border-radius: 12px;
+            padding: 1rem;
+            border: 2px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .form-check:hover {
+            border-color: var(--primary-color);
+            background: rgba(79, 70, 229, 0.05);
+        }
+
+        .form-check-input:checked {
+            background-color: var(--success-color);
+            border-color: var(--success-color);
+        }
+
+        .btn-container {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            border-radius: 12px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(79, 70, 229, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--dark-color);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: var(--light-bg);
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            transform: translateY(-1px);
+        }
+
+        .help-text {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+        }
+
+        .problem-type-option {
+            background: white;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .problem-type-option:hover {
+            border-color: var(--primary-color);
+            background: rgba(79, 70, 229, 0.05);
+        }
+
+        .problem-type-option.selected {
+            border-color: var(--primary-color);
+            background: rgba(79, 70, 229, 0.1);
+        }
+
+        .floating-label {
+            position: relative;
+        }
+
+        .floating-label input:focus + label,
+        .floating-label input:not(:placeholder-shown) + label {
+            transform: translateY(-1.5rem) scale(0.85);
+            color: var(--primary-color);
+        }
+
+        .alert {
+            border-radius: 12px;
+            border: none;
+            margin-bottom: 1.5rem;
+        }
+
+        .progress-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            padding: 0 1rem;
+        }
+
+        .progress-step {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: white;
+            position: relative;
+        }
+
+        .progress-step.active {
+            background: var(--primary-color);
+        }
+
+        .progress-step.completed {
+            background: var(--success-color);
+        }
+
+        .progress-step::after {
+            content: '';
+            position: absolute;
+            width: 100px;
+            height: 2px;
+            background: var(--border-color);
+            right: -115px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .progress-step:last-child::after {
+            display: none;
+        }
+
+        .character-counter {
+            position: absolute;
+            bottom: 10px;
+            right: 15px;
+            font-size: 0.75rem;
+            color: #6b7280;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                margin: 1rem;
+                border-radius: 15px;
+            }
+
+            .form-section {
+                padding: 1.5rem;
+            }
+
+            .btn-container {
+                flex-direction: column;
+            }
+
+            .header-title {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="main-container">
+            <!-- Header Section -->
+            <div class="header-section">
+                <div class="header-content">
+                    <h1 class="header-title">
+                        <i class="fas fa-code"></i>
+                        创建程序设计题目
+                    </h1>
+                    <p class="header-subtitle">设计您的编程挑战，激发学生的创造力</p>
+                </div>
+            </div>
+
+            <!-- Form Section -->
+            <div class="form-section">
+                <!-- Progress Indicator -->
+                <div class="progress-indicator">
+                    <div class="progress-step active">1</div>
+                    <div class="progress-step">2</div>
+                    <div class="progress-step">3</div>
+                </div>
+
+                <!-- Messages -->
+                <div id="messages"></div>
+
+                <form method="post" id="problemForm" novalidate>
+                    <input type="hidden" name="csrfmiddlewaretoken" value="csrf_token_here">
+
+                    <!-- 题目基本信息 -->
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-tag text-primary"></i>
+                                    题目名称
+                                </label>
+                                <input type="text"
+                                       class="form-control"
+                                       name="name"
+                                       id="id_name"
+                                       placeholder="请输入简洁明确的题目名称..."
+                                       required>
+                                <div class="help-text">请输入简洁明确的题目名称</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-users text-primary"></i>
+                                    班级/组别
+                                </label>
+                                <input type="text"
+                                       class="form-control"
+                                       name="clazz"
+                                       id="id_clazz"
+                                       placeholder="如：计算机科学2023级...">
+                                <div class="help-text">指定题目适用的班级或学习组别</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 题目内容 -->
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fab fa-markdown text-primary"></i>
+                            题目内容（Markdown格式）
+                        </label>
+                        <div class="markdown-editor">
+                            <textarea class="form-control"
+                                      name="problem_content"
+                                      id="id_problem_content"
+                                      rows="15"
+                                      placeholder="请输入Markdown格式的程序设计题目...
+
+例如：
+# 题目标题
+
+## 问题描述
+请描述你的编程问题...
+
+## 输入格式
+...
+
+## 输出格式
+...
+
+## 样例
+### 输入
+```
+示例输入
+```
+
+### 输出
+```
+示例输出
+```"
+                                      required></textarea>
+                            <div class="character-counter" id="contentCounter">0 / 无限制</div>
+                        </div>
+                        <div class="help-text">支持Markdown语法，请详细描述题目要求</div>
+
+                        <!-- Markdown预览 -->
+                        <div class="markdown-preview" id="markdownPreview" style="display: none;">
+                            <h6><i class="fas fa-eye"></i> 预览效果</h6>
+                            <div id="previewContent"></div>
+                        </div>
+                        <button type="button" class="btn btn-outline-secondary btn-sm mt-2" id="togglePreview">
+                            <i class="fas fa-eye"></i> 切换预览
+                        </button>
+                    </div>
+
+                    <!-- 时间和类型设置 -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-clock text-primary"></i>
+                                    截止时间
+                                </label>
+                                <input type="datetime-local"
+                                       class="form-control"
+                                       name="deadline"
+                                       id="id_deadline">
+                                <div class="help-text">学生提交作业的最后期限</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-list-alt text-primary"></i>
+                                    问题类型
+                                </label>
+                                <select class="form-control" name="problem_type" id="id_problem_type" required>
+                                    <option value="">请选择问题类型...</option>
+                                    <option value="1">任务分解（代码1）</option>
+                                    <option value="2">代码编写（2）</option>
+                                    <option value="3">整体训练（3）</option>
+                                </select>
+                                <div class="help-text">根据教学目标选择合适的题目类型</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 测试样例选择 -->
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input class="form-check-input"
+                                   type="checkbox"
+                                   name="requires_sample"
+                                   id="id_requires_sample">
+                            <label class="form-check-label" for="id_requires_sample">
+                                <strong>
+                                    <i class="fas fa-vial text-success"></i>
+                                    是否需要编写测试样例
+                                </strong>
+                                <div class="help-text mt-1">勾选此项将要求学生提供测试样例</div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- 提交按钮 -->
+                    <div class="btn-container">
+                        <button type="button" class="btn btn-secondary" onclick="history.back()">
+                            <i class="fas fa-arrow-left"></i>
+                            取消
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            <i class="fas fa-save"></i>
+                            创建题目
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/5.1.1/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 表单元素
+            const form = document.getElementById('problemForm');
+            const nameInput = document.getElementById('id_name');
+            const contentTextarea = document.getElementById('id_problem_content');
+            const deadlineInput = document.getElementById('id_deadline');
+            const typeSelect = document.getElementById('id_problem_type');
+            const togglePreviewBtn = document.getElementById('togglePreview');
+            const markdownPreview = document.getElementById('markdownPreview');
+            const previewContent = document.getElementById('previewContent');
+            const contentCounter = document.getElementById('contentCounter');
+            const submitBtn = document.getElementById('submitBtn');
+
+            // 设置默认截止时间（7天后）
+            const defaultDeadline = new Date();
+            defaultDeadline.setDate(defaultDeadline.getDate() + 7);
+            deadlineInput.value = defaultDeadline.toISOString().slice(0, 16);
+
+            // 字符计数器
+            function updateCounter() {
+                const length = contentTextarea.value.length;
+                contentCounter.textContent = `${length} / 无限制`;
+
+                if (length < 10) {
+                    contentCounter.style.color = '#ef4444';
+                } else if (length < 50) {
+                    contentCounter.style.color = '#f59e0b';
+                } else {
+                    contentCounter.style.color = '#10b981';
+                }
+            }
+
+            contentTextarea.addEventListener('input', updateCounter);
+            updateCounter();
+
+            // Markdown预览功能
+            togglePreviewBtn.addEventListener('click', function() {
+                if (markdownPreview.style.display === 'none') {
+                    const markdownContent = contentTextarea.value;
+                    if (markdownContent.trim()) {
+                        previewContent.innerHTML = marked.parse(markdownContent);
+                        // 高亮代码块
+                        previewContent.querySelectorAll('pre code').forEach((block) => {
+                            hljs.highlightElement(block);
+                        });
+                    } else {
+                        previewContent.innerHTML = '<p class="text-muted">暂无内容可预览</p>';
+                    }
+                    markdownPreview.style.display = 'block';
+                    togglePreviewBtn.innerHTML = '<i class="fas fa-eye-slash"></i> 隐藏预览';
+                } else {
+                    markdownPreview.style.display = 'none';
+                    togglePreviewBtn.innerHTML = '<i class="fas fa-eye"></i> 切换预览';
+                }
+            });
+
+            // 实时验证
+            function validateField(field, condition, message) {
+                const isValid = condition();
+                field.classList.toggle('is-invalid', !isValid);
+                field.classList.toggle('is-valid', isValid);
+
+                let feedback = field.parentNode.querySelector('.invalid-feedback');
+                if (!feedback) {
+                    feedback = document.createElement('div');
+                    feedback.className = 'invalid-feedback';
+                    field.parentNode.appendChild(feedback);
+                }
+                feedback.textContent = isValid ? '' : message;
+
+                return isValid;
+            }
+
+            // 字段验证
+            nameInput.addEventListener('blur', function() {
+                validateField(this, () => this.value.trim().length >= 2, '题目名称至少需要2个字符');
+            });
+
+            contentTextarea.addEventListener('blur', function() {
+                validateField(this, () => this.value.trim().length >= 10, '题目内容至少需要10个字符');
+            });
+
+            deadlineInput.addEventListener('change', function() {
+                validateField(this, () => {
+                    const selected = new Date(this.value);
+                    const now = new Date();
+                    return selected > now;
+                }, '截止时间必须晚于当前时间');
+            });
+
+            typeSelect.addEventListener('change', function() {
+                validateField(this, () => this.value !== '', '请选择问题类型');
+            });
+
+            // 表单提交
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                // 验证所有字段
+                const isNameValid = validateField(nameInput, () => nameInput.value.trim().length >= 2, '题目名称至少需要2个字符');
+                const isContentValid = validateField(contentTextarea, () => contentTextarea.value.trim().length >= 10, '题目内容至少需要10个字符');
+                const isDeadlineValid = validateField(deadlineInput, () => {
+                    if (!deadlineInput.value) return true; // 截止时间可选
+                    const selected = new Date(deadlineInput.value);
+                    const now = new Date();
+                    return selected > now;
+                }, '截止时间必须晚于当前时间');
+                const isTypeValid = validateField(typeSelect, () => typeSelect.value !== '', '请选择问题类型');
+
+                if (isNameValid && isContentValid && isDeadlineValid && isTypeValid) {
+                    // 显示提交状态
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 正在创建...';
+
+                    // 实际提交表单
+                    setTimeout(() => {
+                        form.submit();
+                    }, 500);
+                } else {
+                    showMessage('请修正表单中的错误后再提交', 'danger');
+                }
+            });
+
+            // 显示消息
+            function showMessage(message, type = 'info') {
+                const messagesDiv = document.getElementById('messages');
+                const alertDiv = document.createElement('div');
+                alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+                alertDiv.innerHTML = `
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                `;
+                messagesDiv.appendChild(alertDiv);
+
+                // 自动移除消息
+                setTimeout(() => {
+                    alertDiv.remove();
+                }, 5000);
+            }
+
+            // 进度指示器更新
+            function updateProgress(step) {
+                const steps = document.querySelectorAll('.progress-step');
+                steps.forEach((stepEl, index) => {
+                    stepEl.classList.remove('active', 'completed');
+                    if (index < step - 1) {
+                        stepEl.classList.add('completed');
+                    } else if (index === step - 1) {
+                        stepEl.classList.add('active');
+                    }
+                });
+            }
+
+            // 根据表单完成度更新进度
+            function checkFormProgress() {
+                const basicInfo = nameInput.value.trim() && typeSelect.value;
+                const contentFilled = contentTextarea.value.trim().length >= 10;
+
+                if (contentFilled && basicInfo) {
+                    updateProgress(3);
+                } else if (contentFilled || basicInfo) {
+                    updateProgress(2);
+                } else {
+                    updateProgress(1);
+                }
+            }
+
+            // 监听表单变化更新进度
+            [nameInput, contentTextarea, typeSelect].forEach(field => {
+                field.addEventListener('input', checkFormProgress);
+                field.addEventListener('change', checkFormProgress);
+            });
+
+            // 初始化进度
+            checkFormProgress();
+
+            // 动画效果
+            const formGroups = document.querySelectorAll('.form-group');
+            formGroups.forEach((group, index) => {
+                group.style.opacity = '0';
+                group.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    group.style.transition = 'all 0.6s ease';
+                    group.style.opacity = '1';
+                    group.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+
+            // 快捷键支持
+            document.addEventListener('keydown', function(e) {
+                // Ctrl+Enter 提交表单
+                if (e.ctrlKey && e.key === 'Enter') {
+                    e.preventDefault();
+                    form.dispatchEvent(new Event('submit'));
+                }
+
+                // Ctrl+P 切换预览
+                if (e.ctrlKey && e.key === 'p') {
+                    e.preventDefault();
+                    togglePreviewBtn.click();
+                }
+            });
+
+            // 自动保存到本地存储（可选功能）
+            let autoSaveTimer;
+            function autoSave() {
+                clearTimeout(autoSaveTimer);
+                autoSaveTimer = setTimeout(() => {
+                    const formData = {
+                        name: nameInput.value,
+                        clazz: document.getElementById('id_clazz').value,
+                        content: contentTextarea.value,
+                        deadline: deadlineInput.value,
+                        type: typeSelect.value,
+                        requiresSample: document.getElementById('id_requires_sample').checked,
+                        timestamp: Date.now()
+                    };
+                    // 注意：在Claude.ai环境中不支持localStorage
+                    console.log('自动保存数据:', formData);
+                }, 2000);
+            }
+
+            // 监听表单变化进行自动保存
+            form.addEventListener('input', autoSave);
+            form.addEventListener('change', autoSave);
+        });
+    </script>
+</body>
+</html>

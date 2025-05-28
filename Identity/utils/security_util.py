@@ -8,8 +8,10 @@ from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.http import HttpResponse
 
-from se_back import models
-from se_back.constants import *
+from Identity import models
+from LLMEnhanced_C_Teaching_System.settings import (CONFIRM_EMAIL_HTML_CONTENT,HOST,
+                                                    CONFIRM_DAYS,CONFIRM_EMIAL_SUBJECT,
+                                                    CONFIRM_EMAIL_TEXT_CONTENT,EMAIL_HOST_USER)
 
 
 ##登录系统
@@ -24,13 +26,12 @@ def make_confirm_string(user):
     now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     code = hash_code(user.username, now)
     models.ConfirmString.objects.create(code=code, user=user)
-    # addLog(None, 'ConfirmString','Create', 'Create ConfirmString for ' + str(user.username), 'ConfirmString')
     return code
 
 
 def send_email(email, code):
-    html_content = CONFIRM_EMAIL_HTML_CONTENT.format('127.0.0.1:8000', code, settings.CONFIRM_DAYS)
-    msg = EmailMultiAlternatives(CONFIRM_EMIAL_SUBJECT, CONFIRM_EMAIL_TEXT_CONTENT, settings.EMAIL_HOST_USER, [email])
+    html_content = CONFIRM_EMAIL_HTML_CONTENT.format(HOST, code, CONFIRM_DAYS)
+    msg = EmailMultiAlternatives(CONFIRM_EMIAL_SUBJECT, CONFIRM_EMAIL_TEXT_CONTENT, EMAIL_HOST_USER, [email])
     msg.attach_alternative(html_content, "text/html")
     msg.send()
 
@@ -76,6 +77,10 @@ def setSession(request, roles):
         request.session['user_id'] = roles.uid
         request.session['user_name'] = roles.username
         request.session['role'] = 'user'
+    elif isinstance(roles, models.Teacher):
+        request.session['user_id'] = roles.uid
+        request.session['user_name'] = roles.username
+        request.session['role'] = 'teacher'
     else:
         raise Exception('roles类型错误')
 

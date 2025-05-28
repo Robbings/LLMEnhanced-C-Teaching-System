@@ -48,7 +48,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -88,6 +88,10 @@ DATABASES = {
         'PASSWORD': '123456',
         'HOST': 'localhost',
         'PORT': '3306',
+        'OPTIONS': {
+            'charset': 'utf8mb4',
+            'init_command': "SET NAMES 'utf8mb4'",
+        },
     }
 }
 
@@ -161,23 +165,40 @@ CORS_ALLOW_HEADERS = ('*')
 # 邮箱配置
 # 邮箱配置
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.qq.com'
+EMAIL_HOST = 'smtp.163.com'
 EMAIL_PORT = 25
-EMAIL_HOST_USER = '1872129907@qq.com'
-EMAIL_HOST_PASSWORD = 'xjbhhrruphjneifc'
+EMAIL_HOST_USER = 'robericklq@163.com'
+EMAIL_HOST_PASSWORD = 'HHdxfj3286MaLBNf'
 EMAIL_USE_TLS = False
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 CONFIRM_DAYS = 7
 
 # 确认邮件常量表
-CONFIRM_EMIAL_SUBJECT = '机器人管理系统注册确认邮件'
-CONFIRM_EMAIL_TEXT_CONTENT = '''感谢您使用我们的机器人系统，'''
+HOST = '127.0.0.1:8000'
+CONFIRM_EMIAL_SUBJECT = '大模型辅助教学系统注册确认邮件'
+CONFIRM_EMAIL_TEXT_CONTENT = '''感谢您使用我们的大模型辅助教学系统，'''
 CONFIRM_EMAIL_HTML_CONTENT = '''
-                <p>感谢注册<a href="http://{}/confirm/?code={}" target=blank>机器人管理系统</a>，\
-                本系统支持远程控制、实时监控等功能。</p>
-                <p>请点击站点链接完成注册确认！</p>
-                <p>此链接有效期为{}天！</p>
-                '''
+<div style="font-family: 'Arial', sans-serif; color: #333; padding: 20px; background-color: #f9f9f9;">
+    <h2 style="color: #4CAF50;">欢迎使用大模型辅助教学系统！</h2>
+    <p>感谢您的注册，我们致力于提供以下功能来提升教学效率：</p>
+    <ul>
+        <li>任务分解</li>
+        <li>代码生成</li>
+        <li>测试样例生成</li>
+    </ul>
+    <p>请点击下面的按钮完成注册确认：</p>
+    <p style="text-align: center; margin: 30px 0;">
+        <a href="http://{}/user/confirm/?code={}" target="_blank" 
+           style="background-color: #4CAF50; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px;">
+           确认注册
+        </a>
+    </p>
+    <p style="font-size: 14px; color: #777;">此链接有效期为 <strong>{}</strong> 天。请及时完成确认以正常使用系统功能。</p>
+    <hr style="border: none; border-top: 1px solid #eee; margin: 40px 0;">
+    <p style="font-size: 12px; color: #999;">如果您并未注册该系统，请忽略此邮件。</p>
+</div>
+'''
+
 
 USE_AUTH = True
 

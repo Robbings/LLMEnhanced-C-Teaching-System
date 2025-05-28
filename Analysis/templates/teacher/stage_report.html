@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>阶段学习报告 - {{ user.username }}</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown-light.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .main-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            margin: 2rem auto;
+            max-width: 1200px;
+            overflow: hidden;
+        }
+
+        .header-section {
+            background: linear-gradient(135deg, #4f46e5, #06b6d4);
+            color: white;
+            padding: 2rem;
+        }
+
+        .report-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .status-completed {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .status-pending {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+
+        .status-error {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            margin: 0 auto 1rem;
+        }
+
+        .stat-icon-primary { background: linear-gradient(135deg, #4f46e5, #06b6d4); }
+        .stat-icon-success { background: linear-gradient(135deg, #10b981, #059669); }
+        .stat-icon-warning { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .stat-icon-info { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #1f2937;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6b7280;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-sublabel {
+            font-size: 0.8rem;
+            color: #9ca3af;
+        }
+
+        .progress-ring {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 1rem;
+            position: relative;
+        }
+
+        .progress-ring svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring-bg {
+            fill: none;
+            stroke: #e5e7eb;
+            stroke-width: 8;
+        }
+
+        .progress-ring-fill {
+            fill: none;
+            stroke: url(#gradient);
+            stroke-width: 8;
+            stroke-linecap: round;
+            transition: stroke-dasharray 0.5s ease;
+        }
+
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .date-range {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .learning-topics {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .learning-topics h5 {
+            color: #059669;
+            margin-bottom: 1rem;
+        }
+
+        .topic-tag {
+            display: inline-block;
+            background: rgba(16, 185, 129, 0.2);
+            color: #059669;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin: 0.25rem;
+            font-weight: 500;
+        }
+
+        .no-report {
+            text-align: center;
+            padding: 3rem;
+            color: #64748b;
+        }
+
+        .no-report i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .markdown-body {
+            background: transparent !important;
+            font-family: inherit;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .markdown-body h1,
+        .markdown-body h2,
+        .markdown-body h3,
+        .markdown-body h4,
+        .markdown-body h5,
+        .markdown-body h6 {
+            color: #1f2937;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .markdown-body code {
+            background: #f3f4f6;
+            color: #374151;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .markdown-body pre {
+            background: #1e293b;
+            border-radius: 8px;
+            padding: 1rem;
+            overflow-x: auto;
+        }
+
+        .markdown-body pre code {
+            background: transparent;
+            color: #e2e8f0;
+            padding: 0;
+        }
+
+        .markdown-body blockquote {
+            border-left: 4px solid #06b6d4;
+            background: rgba(6, 182, 212, 0.05);
+            margin: 1rem 0;
+            padding: 1rem;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .btn-back {
+            background: linear-gradient(135deg, #6b7280, #4b5563);
+            border: none;
+            border-radius: 12px;
+            padding: 0.75rem 1.5rem;
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-back:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(107, 114, 128, 0.4);
+            color: white;
+        }
+
+        .section-divider {
+            height: 2px;
+            background: linear-gradient(135deg, #4f46e5, #06b6d4);
+            border-radius: 1px;
+            margin: 2rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="main-container">
+            <!-- Header -->
+            <div class="header-section">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1><i class="fas fa-chart-area"></i> 阶段学习报告</h1>
+                        <p class="mb-0">{{ user.username }} 的学习成果总结</p>
+                    </div>
+                    <div>
+                        {% if is_teacher %}
+                        <a href="{% url 'Analysis:teacher_class_overview' %}" class="btn btn-back">
+                            <i class="fas fa-arrow-left"></i> 返回数据列表
+                        </a>
+                        {% else %}
+                        <a href="{% url 'Analysis:problem_list' %}" class="btn btn-back">
+                            <i class="fas fa-arrow-left"></i> 返回问题列表
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Date Range -->
+                <div class="date-range mt-3">
+                    <div class="d-flex align-items-center justify-content-center">
+                        <i class="fas fa-calendar-alt me-2"></i>
+                        <strong>阶段时间范围：</strong>
+                        <span class="ms-2">{{ start_date|date:"Y年m月d日" }} — {{ end_date|date:"Y年m月d日" }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="p-4">
+                <!-- Learning Topics -->
+                {% if learning_topics %}
+                <div class="learning-topics">
+                    <h5><i class="fas fa-lightbulb"></i> 本阶段学习主题</h5>
+                    <div>
+                        {% for topic in learning_topics %}
+                        <span class="topic-tag">{{ topic }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Statistics Grid -->
+                <div class="stats-grid">
+                    <!-- Submission Stats -->
+                    <div class="stat-card">
+                        <div class="stat-icon stat-icon-primary">
+                            <i class="fas fa-code"></i>
+                        </div>
+                        <div class="stat-number">{{ commit_count|default:0 }}</div>
+                        <div class="stat-label">提交总次数</div>
+                        <div class="stat-sublabel">日均 {{ avg_commits_per_day|default:0|floatformat:1 }} 次</div>
+                    </div>
+
+                    <!-- Task Completion -->
+                    <div class="stat-card">
+                        <div class="progress-ring">
+                            <svg>
+                                <defs>
+                                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" style="stop-color:#10b981"/>
+                                        <stop offset="100%" style="stop-color:#059669"/>
+                                    </linearGradient>
+                                </defs>
+                                <circle class="progress-ring-bg" cx="60" cy="60" r="52"/>
+                                <circle class="progress-ring-fill" cx="60" cy="60" r="52"
+                                        stroke-dasharray="{{ completion_rate|default:0 }},100"
+                                        stroke-dashoffset="0"/>
+                            </svg>
+                            <div class="progress-text">{{ completion_rate|default:0|floatformat:0 }}%</div>
+                        </div>
+                        <div class="stat-label">任务完成率</div>
+                        <div class="stat-sublabel">{{ completed_tasks|default:0 }} / {{ total_tasks|default:0 }} 个任务</div>
+                    </div>
+
+                    <!-- Average Score -->
+                    <div class="stat-card">
+                        <div class="stat-icon
+                            {% if average_score >= 90 %}stat-icon-success
+                            {% elif average_score >= 70 %}stat-icon-info
+                            {% else %}stat-icon-warning{% endif %}">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div class="stat-number">{{ average_score|default:0|floatformat:1 }}</div>
+                        <div class="stat-label">平均得分</div>
+                        <div class="stat-sublabel">满分 100 分</div>
+                    </div>
+
+                    <!-- Study Days -->
+                    <div class="stat-card">
+                        <div class="stat-icon stat-icon-info">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div class="stat-number">{{ study_days|default:7 }}</div>
+                        <div class="stat-label">学习天数</div>
+                        <div class="stat-sublabel">过去一周</div>
+                    </div>
+                </div>
+
+                <!-- Section Divider -->
+                <div class="section-divider"></div>
+
+                <!-- AI Analysis Report -->
+                <div class="report-card">
+                    <h5><i class="fas fa-brain"></i> AI 学习分析报告</h5>
+                    <hr>
+
+                    {% if stage_report %}
+                        {% if stage_report.generate_state == 'completed' %}
+                        <!-- Completed Report -->
+                        <div class="mb-3">
+                            <span class="status-indicator status-completed">
+                                <i class="fas fa-check-circle me-1"></i> 分析完成
+                            </span>
+                            <small class="text-muted ms-2">生成于 {{ stage_report.created_at|date:"Y-m-d H:i" }}</small>
+                        </div>
+                        <div class="markdown-body" id="ai-report-content">
+                            <!-- Markdown content will be rendered here -->
+                        </div>
+
+                        {% elif stage_report.generate_state == 'pending' or stage_report.generate_state == 'not_started' %}
+                        <!-- Generating Report -->
+                        <div class="text-center py-4">
+                            <div class="spinner-border text-primary mb-3" role="status">
+                                <span class="visually-hidden">分析中...</span>
+                            </div>
+                            <h6>AI 正在分析您的学习数据</h6>
+                            <p class="text-muted">请稍等，系统正在为您生成个性化的学习分析报告...</p>
+                            <div class="progress mt-3" style="height: 6px;">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated"
+                                     role="progressbar" style="width: 100%"></div>
+                            </div>
+                            <button class="btn btn-outline-primary mt-3" onclick="location.reload()">
+                                <i class="fas fa-sync-alt"></i> 刷新状态
+                            </button>
+                        </div>
+
+                        {% else %}
+                        <!-- Error State -->
+                        <div class="text-center py-4">
+                            <i class="fas fa-exclamation-triangle text-warning" style="font-size: 3rem;"></i>
+                            <h6 class="mt-3">报告生成出错</h6>
+                            <p class="text-muted">AI 分析过程中遇到了问题，请稍后重试。</p>
+                            <span class="status-indicator status-error">
+                                <i class="fas fa-times-circle me-1"></i> 生成失败
+                            </span>
+                            <div class="mt-3">
+                                <button class="btn btn-outline-primary" onclick="location.reload()">
+                                    <i class="fas fa-sync-alt"></i> 重新生成
+                                </button>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% else %}
+                    <!-- No Report -->
+                    <div class="no-report">
+                        <i class="fas fa-robot"></i>
+                        <h6>正在准备您的学习分析报告</h6>
+                        <p>AI 正在收集和分析您的学习数据，首次生成可能需要几分钟时间。</p>
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">准备中...</span>
+                        </div>
+                        <div class="mt-3">
+                            <button class="btn btn-outline-primary" onclick="location.reload()">
+                                <i class="fas fa-sync-alt"></i> 刷新页面
+                            </button>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="text-center mt-4">
+{#                    <a href="{% url 'Analysis:submissions_history' %}" class="btn btn-outline-info me-2">#}
+{#                        <i class="fas fa-history"></i> 查看提交历史#}
+{#                    </a>#}
+                    {% if stage_report and stage_report.generate_state == 'pending' %}
+                    <button class="btn btn-outline-primary" onclick="location.reload()">
+                        <i class="fas fa-sync-alt"></i> 刷新状态
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/5.1.1/marked.min.js"></script>
+    <script>
+        // Auto refresh if report is generating
+        {% if stage_report and stage_report.generate_state == 'pending' %}
+        setTimeout(function() {
+            location.reload();
+        }, 15000); // Refresh after 15 seconds
+        {% endif %}
+
+        // Markdown rendering for AI report
+        {% if stage_report and stage_report.generate_state == 'completed' and stage_report.report_content %}
+        document.addEventListener('DOMContentLoaded', function() {
+            const markdownContent = `{{ stage_report.report_content|escapejs }}`;
+            const reportContentElement = document.getElementById('ai-report-content');
+
+            if (markdownContent && reportContentElement) {
+                // Configure marked options
+                marked.setOptions({
+                    highlight: function(code, lang) {
+                        if (lang && hljs.getLanguage(lang)) {
+                            return hljs.highlight(code, { language: lang }).value;
+                        }
+                        return hljs.highlightAuto(code).value;
+                    },
+                    breaks: true,
+                    gfm: true
+                });
+
+                // Render Markdown
+                reportContentElement.innerHTML = marked.parse(markdownContent);
+
+                // Highlight code blocks
+                reportContentElement.querySelectorAll('pre code').forEach((block) => {
+                    hljs.highlightElement(block);
+                });
+            }
+        });
+        {% endif %}
+
+        // Initialize code highlighting
+        hljs.highlightAll();
+
+        // Smooth scroll for long content
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>班级数据管理 - {{ teacher.username }}</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .main-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            margin: 2rem auto;
+            max-width: 1400px;
+            overflow: hidden;
+        }
+
+        .header-section {
+            background: linear-gradient(135deg, #4f46e5, #06b6d4);
+            color: white;
+            padding: 2rem;
+        }
+
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .overview-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .overview-number {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .overview-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .student-table-container {
+            background: white;
+            border-radius: 15px;
+            margin: 2rem;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, #1f2937, #374151);
+            color: white;
+            padding: 1.5rem;
+        }
+
+        .student-row {
+            transition: all 0.3s ease;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .student-row:hover {
+            background: rgba(79, 70, 229, 0.05);
+            transform: translateX(5px);
+        }
+
+        .student-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4f46e5, #06b6d4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        .status-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-excellent {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .status-good {
+            background: linear-gradient(135deg, #06b6d4, #0891b2);
+            color: white;
+        }
+
+        .status-average {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+
+        .status-poor {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        .progress-bar-container {
+            background: #e5e7eb;
+            border-radius: 10px;
+            height: 8px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        .progress-excellent { background: linear-gradient(135deg, #10b981, #059669); }
+        .progress-good { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+        .progress-average { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .progress-poor { background: linear-gradient(135deg, #ef4444, #dc2626); }
+
+        .stat-number {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+
+        .action-btn {
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-report {
+            background: linear-gradient(135deg, #4f46e5, #06b6d4);
+            color: white;
+        }
+
+        .btn-report:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
+            color: white;
+        }
+
+        .btn-detail {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .btn-detail:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+            color: white;
+        }
+
+        .no-students {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #6b7280;
+        }
+
+        .no-students i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .activity-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+
+        .activity-active { background: #10b981; }
+        .activity-recent { background: #f59e0b; }
+        .activity-inactive { background: #ef4444; }
+
+        .sort-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .sort-btn {
+            background: rgba(79, 70, 229, 0.1);
+            border: 1px solid rgba(79, 70, 229, 0.3);
+            color: #4f46e5;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .sort-btn.active,
+        .sort-btn:hover {
+            background: #4f46e5;
+            color: white;
+        }
+
+        .report-status {
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .report-completed { background: rgba(16, 185, 129, 0.2); color: #059669; }
+        .report-pending { background: rgba(245, 158, 11, 0.2); color: #d97706; }
+        .report-error { background: rgba(239, 68, 68, 0.2); color: #dc2626; }
+        .report-not-started { background: rgba(107, 114, 128, 0.2); color: #4b5563; }
+
+        @media (max-width: 768px) {
+            .stats-overview {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .main-container {
+                margin: 1rem;
+            }
+
+            .table-responsive {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="main-container">
+            <!-- Header -->
+            <div class="header-section">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h1><i class="fas fa-users"></i> 班级数据管理</h1>
+                        <p class="mb-0">{{ teacher.username }} · {{ teacher_class }}</p>
+                    </div>
+                    <div>
+                        <a href="{% url 'Analysis:problem_list' %}" class="btn btn-light">
+                            <i class="fas fa-arrow-left"></i> 返回问题列表
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Class Statistics Overview -->
+                <div class="stats-overview">
+                    <div class="overview-card">
+                        <div class="overview-number">{{ total_students }}</div>
+                        <div class="overview-label">班级学生总数</div>
+                    </div>
+                    <div class="overview-card">
+                        <div class="overview-number">{{ class_stats.total_submissions }}</div>
+                        <div class="overview-label">总提交次数</div>
+                    </div>
+                    <div class="overview-card">
+                        <div class="overview-number">{{ class_stats.avg_score }}分</div>
+                        <div class="overview-label">班级平均分</div>
+                    </div>
+                    <div class="overview-card">
+                        <div class="overview-number">{{ class_stats.completion_rate }}%</div>
+                        <div class="overview-label">作业完成率</div>
+                    </div>
+                    <div class="overview-card">
+                        <div class="overview-number">{{ class_stats.active_students }}</div>
+                        <div class="overview-label">活跃学生数</div>
+                    </div>
+                    <div class="overview-card">
+                        <div class="overview-number">{{ teacher_problems_count }}</div>
+                        <div class="overview-label">发布题目数</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Student Data Table -->
+            <div class="student-table-container">
+                <div class="table-header">
+                    <h5><i class="fas fa-chart-bar"></i> 学生学习数据详情</h5>
+
+                    <!-- Sort Controls -->
+                    <div class="sort-controls mt-3">
+                        <button class="sort-btn active" onclick="sortTable('score')">
+                            <i class="fas fa-sort-amount-down"></i> 按总分排序
+                        </button>
+                        <button class="sort-btn" onclick="sortTable('submissions')">
+                            <i class="fas fa-code"></i> 按提交数排序
+                        </button>
+                        <button class="sort-btn" onclick="sortTable('completion')">
+                            <i class="fas fa-tasks"></i> 按完成率排序
+                        </button>
+                        <button class="sort-btn" onclick="sortTable('activity')">
+                            <i class="fas fa-clock"></i> 按活跃度排序
+                        </button>
+                    </div>
+                </div>
+
+                {% if students %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0" id="studentTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th width="5%">#</th>
+                                <th width="15%">学生信息</th>
+                                <th width="12%">提交统计</th>
+                                <th width="12%">完成情况</th>
+                                <th width="10%">总分</th>
+                                <th width="12%">完成率</th>
+                                <th width="10%">活跃度</th>
+                                <th width="10%">报告状态</th>
+                                <th width="14%">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for student_data in students %}
+                            <tr class="student-row">
+                                <td>{{ forloop.counter }}</td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="student-avatar me-3">
+                                            {{ student_data.student.username|slice:":1"|upper }}
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold">{{ student_data.student.username }}</div>
+                                            <div class="text-muted small">{{ student_data.student.email }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="stat-number">{{ student_data.stats.total_submissions }}</div>
+                                    <div class="stat-label">本周: {{ student_data.stats.week_submissions }}</div>
+                                </td>
+                                <td>
+                                    <div class="small">
+                                        <div class="text-success">✓ 完成: {{ student_data.stats.completed_problems }}</div>
+                                        <div class="text-danger">✗ 失败: {{ student_data.stats.failed_problems }}</div>
+                                        <div class="text-warning">⏳ 进行中: {{ student_data.stats.pending_problems }}</div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="stat-number
+                                        {% if student_data.stats.total_score >= 800 %}text-success
+                                        {% elif student_data.stats.total_score >= 600 %}text-info
+                                        {% elif student_data.stats.total_score >= 400 %}text-warning
+                                        {% else %}text-danger{% endif %}">
+                                        {{ student_data.stats.total_score }}
+                                    </div>
+                                    <div class="stat-label">均分: {{ student_data.stats.avg_score }}</div>
+                                </td>
+                                <td>
+                                    <div class="progress-bar-container mb-1">
+                                        <div class="progress-bar-fill
+                                            {% if student_data.stats.completion_rate >= 80 %}progress-excellent
+                                            {% elif student_data.stats.completion_rate >= 60 %}progress-good
+                                            {% elif student_data.stats.completion_rate >= 40 %}progress-average
+                                            {% else %}progress-poor{% endif %}"
+                                             style="width: {{ student_data.stats.completion_rate }}%"></div>
+                                    </div>
+                                    <div class="small text-center">{{ student_data.stats.completion_rate }}%</div>
+                                </td>
+                                <td>
+                                    {% if student_data.stats.last_activity %}
+                                        {% if student_data.stats.week_submissions > 0 %}
+                                            <span class="activity-indicator activity-active"></span>
+                                            <span class="small text-success">活跃</span>
+                                        {% else %}
+                                            <span class="activity-indicator activity-recent"></span>
+                                            <span class="small text-warning">一般</span>
+                                        {% endif %}
+                                        <div class="small text-muted">
+                                            {{ student_data.stats.last_activity|date:"m-d H:i" }}
+                                        </div>
+                                    {% else %}
+                                        <span class="activity-indicator activity-inactive"></span>
+                                        <span class="small text-danger">未活跃</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="report-status
+                                        {% if student_data.stats.report_status == 'completed' %}report-completed
+                                        {% elif student_data.stats.report_status == 'pending' %}report-pending
+                                        {% elif student_data.stats.report_status == 'error' %}report-error
+                                        {% else %}report-not-started{% endif %}">
+                                        {% if student_data.stats.report_status == 'completed' %}已完成
+                                        {% elif student_data.stats.report_status == 'pending' %}生成中
+                                        {% elif student_data.stats.report_status == 'error' %}生成失败
+                                        {% else %}未开始{% endif %}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="d-flex flex-column gap-1">
+                                        <a href="/analysis/stage-report/?uid={{ student_data.student.uid }}"
+                                           class="action-btn btn-report btn-sm">
+                                            <i class="fas fa-chart-area"></i>
+                                            <span>阶段报告</span>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="no-students">
+                    <i class="fas fa-users-slash"></i>
+                    <h6>暂无学生数据</h6>
+                    <p>{{ message|default:"您的班级中还没有已确认的学生，或者还没有发布任何作业题目。" }}</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Additional Statistics -->
+            {% if students %}
+            <div class="row mx-3 mb-4">
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header bg-light">
+                            <h6><i class="fas fa-trophy"></i> 成绩分布</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>优秀 (90-100分)</span>
+                                <span class="badge bg-success">
+                                    {{ excellent_count|floatformat:0 }}人
+                                </span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>良好 (80-89分)</span>
+                                <span class="badge bg-info">
+                                    {{ good_count|floatformat:0 }}人
+                                </span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>中等 (70-79分)</span>
+                                <span class="badge bg-warning">
+                                    {{ average_count|floatformat:0 }}人
+                                </span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>待提高 (<70分)</span>
+                                <span class="badge bg-danger">
+                                    {{ improve_count|floatformat:0 }}人
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header bg-light">
+                            <h6><i class="fas fa-chart-pie"></i> 活跃度统计</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="text-center">
+                                <div class="row">
+                                    <div class="col-4">
+                                        <div class="h4 text-success">{{ active_count|default:"0" }}</div>
+                                        <div class="small text-muted">活跃学生</div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="h4 text-warning">
+                                            {{ moderate_count|default:"0" }}
+                                        </div>
+                                        <div class="small text-muted">一般活跃</div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="h4 text-danger">
+                                            {{ inactive_count|default:"0" }}
+                                        </div>
+                                        <div class="small text-muted">不活跃</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Table sorting functionality
+        let currentSort = 'score';
+        let sortOrder = 'desc';
+
+        function sortTable(criteria) {
+            // Update active sort button
+            document.querySelectorAll('.sort-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.closest('.sort-btn').classList.add('active');
+
+            const table = document.getElementById('studentTable');
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+
+            // Toggle sort order if same criteria
+            if (currentSort === criteria) {
+                sortOrder = sortOrder === 'desc' ? 'asc' : 'desc';
+            } else {
+                sortOrder = 'desc';
+                currentSort = criteria;
+            }
+
+            rows.sort((a, b) => {
+                let valueA, valueB;
+
+                switch(criteria) {
+                    case 'score':
+                        valueA = parseInt(a.cells[4].querySelector('.stat-number').textContent);
+                        valueB = parseInt(b.cells[4].querySelector('.stat-number').textContent);
+                        break;
+                    case 'submissions':
+                        valueA = parseInt(a.cells[2].querySelector('.stat-number').textContent);
+                        valueB = parseInt(b.cells[2].querySelector('.stat-number').textContent);
+                        break;
+                    case 'completion':
+                        valueA = parseFloat(a.cells[5].querySelector('.small').textContent.replace('%', ''));
+                        valueB = parseFloat(b.cells[5].querySelector('.small').textContent.replace('%', ''));
+                        break;
+                    case 'activity':
+                        // Sort by activity status and last activity
+                        const activityA = a.cells[6].querySelector('.small').textContent;
+                        const activityB = b.cells[6].querySelector('.small').textContent;
+                        const activityOrder = {'活跃': 3, '一般': 2, '未活跃': 1};
+                        valueA = activityOrder[activityA] || 0;
+                        valueB = activityOrder[activityB] || 0;
+                        break;
+                    default:
+                        return 0;
+                }
+
+                if (sortOrder === 'desc') {
+                    return valueB - valueA;
+                } else {
+                    return valueA - valueB;
+                }
+            });
+
+            // Re-append sorted rows
+            rows.forEach((row, index) => {
+                row.cells[0].textContent = index + 1; // Update row numbers
+                tbody.appendChild(row);
+            });
+        }
+
+        // Auto-refresh functionality
+        function refreshData() {
+            location.reload();
+        }
+
+        // Add refresh button functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add auto-refresh every 5 minutes
+            setInterval(refreshData, 300000);
+
+            // Animate progress bars on load
+            setTimeout(() => {
+                document.querySelectorAll('.progress-bar-fill').forEach(bar => {
+                    const width = bar.style.width;
+                    bar.style.width = '0%';
+                    setTimeout(() => {
+                        bar.style.width = width;
+                    }, 100);
+                });
+            }, 500);
+
+            // Add tooltips for better UX
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
+
+        // Search functionality
+        function searchStudents(query) {
+            const rows = document.querySelectorAll('#studentTable tbody tr');
+            const searchTerm = query.toLowerCase();
+
+            rows.forEach(row => {
+                const studentName = row.cells[1].textContent.toLowerCase();
+                const studentEmail = row.cells[1].textContent.toLowerCase();
+
+                if (studentName.includes(searchTerm) || studentEmail.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            // Ctrl/Cmd + R for refresh
+            if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
+                e.preventDefault();
+                refreshData();
+            }
+        });
+
+        // Mobile responsive enhancements
+        function handleResize() {
+            const isMobile = window.innerWidth < 768;
+            const table = document.querySelector('.table-responsive');
+
+            if (isMobile && table) {
+                // Add horizontal scroll indicator for mobile
+                table.style.position = 'relative';
+                if (!table.querySelector('.scroll-hint')) {
+                    const hint = document.createElement('div');
+                    hint.className = 'scroll-hint';
+                    hint.innerHTML = '<i class="fas fa-arrows-alt-h"></i> 左右滑动查看更多';
+                    hint.style.cssText = `
+                        position: absolute;
+                        top: 10px;
+                        right: 10px;
+                        background: rgba(0,0,0,0.7);
+                        color: white;
+                        padding: 5px 10px;
+                        border-radius: 15px;
+                        font-size: 0.7rem;
+                        z-index: 10;
+                    `;
+                    table.appendChild(hint);
+
+                    // Hide hint after 3 seconds
+                    setTimeout(() => {
+                        hint.style.opacity = '0';
+                        setTimeout(() => hint.remove(), 300);
+                    }, 3000);
+                }
+            }
+        }
+
+        window.addEventListener('resize', handleResize);
+        handleResize(); // Run on load
+    </script>
+</body>
+</html>

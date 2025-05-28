@@ -125,3 +125,22 @@ def question_report_node(state):
     llm = get_llm_stream()
     response = llm.invoke(prompt)
     return {**state, "report": response.content}
+
+def gen_report(state):
+    """生成代码分析报告"""
+    question = state["question"]
+    code = state["code"]
+    prompt = question_report_prompt_template.format_prompt(question=question, code=code)
+    llm = get_llm_stream()
+    response = llm.invoke(prompt)
+    return response.content
+
+
+if __name__ == "__main__":
+    # Example usage
+    state = {
+        "question": "请实现一个函数，计算两个数的和。",
+        "code": "int add(int a, int b) { return a + b; }"
+    }
+    report = gen_report(state)
+    print(report)

@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>题目管理 - 智能教学系统</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .main-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            margin: 2rem auto;
+            max-width: 1200px;
+            overflow: hidden;
+        }
+
+        .header-section {
+            background: linear-gradient(135deg, #4f46e5, #06b6d4);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .problem-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .problem-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .problem-type-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+        }
+
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+        }
+
+        .btn-create {
+            background: linear-gradient(135deg, #10b981, #059669);
+            border: none;
+            border-radius: 12px;
+            padding: 0.75rem 2rem;
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-create:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+            color: white;
+        }
+
+        .btn-analysis {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            border: none;
+            border-radius: 12px;
+            padding: 0.75rem 2rem;
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-analysis:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4);
+            color: white;
+        }
+
+        .stats-mini {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 0.25rem;
+        }
+
+        .stat-number {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: #6b7280;
+        }
+
+        .progress-mini {
+            height: 4px;
+            margin-top: 0.5rem;
+        }
+
+        .student-status-info {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        .deadline-warning {
+            color: #dc2626;
+            font-weight: 600;
+        }
+
+        .deadline-normal {
+            color: #059669;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="main-container">
+            <!-- Header -->
+            <div class="header-section">
+                <h1><i class="fas fa-tasks"></i>
+                    {% if is_teacher %}题目管理{% else %}题目列表{% endif %}
+                </h1>
+                <p>
+                    {% if is_teacher %}
+                        管理您创建的所有程序设计题目
+                    {% else %}
+                        查看和完成程序设计题目
+                    {% endif %}
+                </p>
+            </div>
+
+            <!-- Content -->
+            <div class="p-4">
+                <!-- Action Bar -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3>
+                        {% if is_teacher %}我的题目{% else %}可用题目{% endif %}
+                        <small class="text-muted">({{ total_problems }})</small>
+                    </h3>
+                    {% if is_teacher %}
+                    <div>
+                        <a href="{% url 'Analysis:teacher_class_overview' %}" class="btn btn-analysis me-2">
+                            <i class="fas fa-chart-line"></i> 数据分析
+                        </a>
+                        <a href="{% url 'Analysis:create_problem' %}" class="btn btn-create">
+                            <i class="fas fa-plus"></i> 创建新题目
+                        </a>
+                    </div>
+                    {% endif %}
+                    {% if not is_teacher %}
+                    <div>
+                        <a href="/analysis/stage-report/" class="btn btn-analysis">
+                            <i class="fas fa-chart-line"></i> 阶段报告
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Problems List -->
+                {% if is_teacher %}
+                    <!-- 教师视图 -->
+                    {% if problem_stats %}
+                        {% for item in problem_stats %}
+                        <div class="problem-card">
+                            <div class="row align-items-center">
+                                <div class="col-md-7">
+                                    <h5 class="mb-2">{{ item.problem.name }}</h5>
+                                    <p class="text-muted mb-2">
+                                        <i class="fas fa-users"></i> {{ item.problem.clazz|default:"所有班级" }}
+                                    </p>
+                                    <div class="d-flex gap-2 mb-2">
+                                        <span class="problem-type-badge badge
+                                            {% if item.problem.problem_type == 1 %}bg-primary
+                                            {% elif item.problem.problem_type == 2 %}bg-success
+                                            {% else %}bg-warning{% endif %}">
+                                            {% if item.problem.problem_type == 1 %}任务分解
+                                            {% elif item.problem.problem_type == 2 %}代码编写
+                                            {% else %}整体训练{% endif %}
+                                        </span>
+                                        {% if item.problem.requires_sample %}
+                                        <span class="badge bg-info">需要样例</span>
+                                        {% endif %}
+                                        {% if item.problem.deadline %}
+                                            {% now "U" as current_timestamp %}
+                                            {% if item.problem.deadline|date:"U" < current_timestamp %}
+                                                <span class="badge bg-danger">已截止</span>
+                                            {% else %}
+                                                <span class="badge bg-success">进行中</span>
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar"></i> 创建于 {{ item.problem.created_at|date:"Y-m-d H:i" }}
+                                        {% if item.problem.deadline %}
+                                        | <i class="fas fa-clock"></i> 截止 {{ item.problem.deadline|date:"Y-m-d H:i" }}
+                                        {% endif %}
+                                    </small>
+                                </div>
+                                <div class="col-md-3">
+                                    <!-- 统计信息 -->
+                                    <div class="stats-mini">
+                                        <div class="row text-center">
+                                            <div class="col-3">
+                                                <div class="stat-item">
+                                                    <div class="stat-number text-primary">{{ item.stats.total_students }}</div>
+                                                    <div class="stat-label">总数</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-3">
+                                                <div class="stat-item">
+                                                    <div class="stat-number text-info">{{ item.stats.total_submissions }}</div>
+                                                    <div class="stat-label">提交</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-3">
+                                                <div class="stat-item">
+                                                    <div class="stat-number text-success">{{ item.stats.passed_submissions }}</div>
+                                                    <div class="stat-label">通过</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-3">
+                                                <div class="stat-item">
+                                                    <div class="stat-number text-danger">{{ item.stats.not_submitted_count }}</div>
+                                                    <div class="stat-label">未交</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="progress progress-mini">
+                                            <div class="progress-bar bg-success" role="progressbar"
+                                                 style="width: {{ item.stats.submission_rate }}%">
+                                            </div>
+                                        </div>
+                                        <small class="text-muted">提交率: {{ item.stats.submission_rate|floatformat:1 }}%</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 text-end">
+                                    <div class="btn-group-vertical">
+                                        <a href="{% url 'Analysis:view_problem' item.problem.id %}"
+                                           class="btn btn-outline-primary btn-sm mb-1">
+                                            <i class="fas fa-eye"></i> 查看
+                                        </a>
+                                        <button class="btn btn-outline-success btn-sm mb-1"
+                                                onclick="editProblem('{{ item.problem.id }}')">
+                                            <i class="fas fa-edit"></i> 编辑
+                                        </button>
+                                        <a href="{% url 'Analysis:delete_problem' item.problem.id %}"
+                                           class="btn btn-outline-danger btn-sm"
+                                           onclick="return confirm('确定要删除这个题目吗？')">
+                                            <i class="fas fa-trash"></i> 删除
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-code fa-3x text-muted mb-3"></i>
+                            <h4 class="text-muted">还没有创建任何题目</h4>
+                            <p class="text-muted">点击上方按钮开始创建您的第一个编程题目</p>
+                            <a href="{% url 'Analysis:create_problem' %}" class="btn btn-create">
+                                <i class="fas fa-plus"></i> 立即创建
+                            </a>
+                        </div>
+                    {% endif %}
+                {% else %}
+                    <!-- 学生视图 -->
+                    {% if problem_status %}
+                        {% for item in problem_status %}
+                        <div class="problem-card">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <h5 class="mb-2">{{ item.problem.name }}</h5>
+                                    <p class="text-muted mb-2">
+                                        <i class="fas fa-user-tie"></i> {{ item.problem.teacher.username }}
+                                        | <i class="fas fa-users"></i> {{ item.problem.clazz|default:"所有班级" }}
+                                    </p>
+                                    <div class="d-flex gap-2 mb-2">
+                                        <span class="problem-type-badge badge
+                                            {% if item.problem.problem_type == 1 %}bg-primary
+                                            {% elif item.problem.problem_type == 2 %}bg-success
+                                            {% else %}bg-warning{% endif %}">
+                                            {% if item.problem.problem_type == 1 %}任务分解
+                                            {% elif item.problem.problem_type == 2 %}代码编写
+                                            {% else %}整体训练{% endif %}
+                                        </span>
+                                        {% if item.problem.requires_sample %}
+                                        <span class="badge bg-info">需要样例</span>
+                                        {% endif %}
+
+                                        <!-- 完成状态标签 -->
+                                        {% if item.status == 'passed' %}
+                                            <span class="status-badge badge bg-success">
+                                                <i class="fas fa-check"></i> 已通过
+                                            </span>
+                                        {% elif item.status == 'failed' %}
+                                            <span class="status-badge badge bg-danger">
+                                                <i class="fas fa-times"></i> 未通过
+                                            </span>
+                                        {% elif item.status == 'pending' %}
+                                            <span class="status-badge badge bg-warning">
+                                                <i class="fas fa-clock"></i> 评测中
+                                            </span>
+                                        {% elif item.status == 'error' %}
+                                            <span class="status-badge badge bg-danger">
+                                                <i class="fas fa-exclamation"></i> 错误
+                                            </span>
+                                        {% else %}
+                                            <span class="status-badge badge bg-secondary">
+                                                <i class="fas fa-minus"></i> 未提交
+                                            </span>
+                                        {% endif %}
+                                    </div>
+
+                                    <!-- 时间信息 -->
+                                    <small class="text-muted">
+                                        <i class="fas fa-calendar"></i> 发布于 {{ item.problem.created_at|date:"Y-m-d H:i" }}
+                                        {% if item.problem.deadline %}
+                                        | <i class="fas fa-clock"></i> 截止
+                                        <span class="{% if item.is_expired %}deadline-warning{% else %}deadline-normal{% endif %}">
+                                            {{ item.problem.deadline|date:"Y-m-d H:i" }}
+                                        </span>
+                                        {% endif %}
+                                    </small>
+
+                                    <!-- 学生状态信息 -->
+                                    {% if item.submission %}
+                                    <div class="student-status-info">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <small>
+                                                    <i class="fas fa-upload"></i> 提交时间: {{ item.submitted_at|date:"m-d H:i" }}
+                                                </small>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <small>
+                                                    <i class="fas fa-star"></i> 得分: {{ item.score }}分
+                                                    {% if item.pass_rate > 0 %}
+                                                    | 通过率: {{ item.pass_rate|floatformat:1 }}%
+                                                    {% endif %}
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4 text-end">
+                                    <div class="btn-group-vertical">
+                                        <a href="{% url 'Analysis:view_problem' item.problem.id %}"
+                                           class="btn btn-outline-primary btn-sm mb-1">
+                                            <i class="fas fa-eye"></i> 查看题目
+                                        </a>
+
+                                        {% if item.can_submit %}
+                                        <a href="{% url 'Analysis:submit_problem' item.problem.id %}"
+                                           class="btn btn-outline-success btn-sm mb-1">
+                                            <i class="fas fa-upload"></i>
+                                            {% if item.submission %}重新提交{% else %}提交作业{% endif %}
+                                        </a>
+                                        {% endif %}
+
+                                        {% if item.has_report %}
+                                        <a href="{% url 'Analysis:view_report' item.submission.id %}"
+                                           class="btn btn-outline-info btn-sm mb-1">
+                                            <i class="fas fa-file-alt"></i> 查看报告
+                                        </a>
+                                        {% endif %}
+
+                                        {% if item.submission %}
+                                        <a href="{% url 'Analysis:view_submission_code' item.submission.id %}"
+                                           class="btn btn-outline-secondary btn-sm">
+                                            <i class="fas fa-code"></i> 查看代码
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-code fa-3x text-muted mb-3"></i>
+                            <h4 class="text-muted">暂无可用题目</h4>
+                            <p class="text-muted">请等待教师发布题目</p>
+                        </div>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function editProblem(problemId) {
+            // 这里可以跳转到编辑页面或打开编辑模态框
+            // 暂时使用alert提示
+            alert('编辑功能开发中，题目ID: ' + problemId);
+            // 实际使用时可以这样跳转：
+            // window.location.href = '/analysis/problems/' + problemId + '/edit/';
+        }
+
+        // 添加确认删除的交互
+        document.addEventListener('DOMContentLoaded', function() {
+            const deleteLinks = document.querySelectorAll('a[href*="delete"]');
+            deleteLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    if (!confirm('确定要删除这个题目吗？此操作不可恢复！')) {
+                        e.preventDefault();
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

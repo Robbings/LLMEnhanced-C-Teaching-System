@@ -9,7 +9,9 @@ from django.core.mail import EmailMultiAlternatives
 from django.http import HttpResponse
 
 from Identity import models
-from LLMEnhanced_C_Teaching_System.settings import CONFIRM_EMAIL_HTML_CONTENT, CONFIRM_EMAIL_TEXT_CONTENT, CONFIRM_EMIAL_SUBJECT
+from LLMEnhanced_C_Teaching_System.settings import (
+    EMAIL_HOST_USER,CONFIRM_DAYS,HOST,CONFIRM_EMAIL_HTML_CONTENT,
+    CONFIRM_EMAIL_TEXT_CONTENT, CONFIRM_EMIAL_SUBJECT)
 
 
 ##登录系统
@@ -29,8 +31,8 @@ def make_confirm_string(user):
 
 
 def send_email(email, code):
-    html_content = CONFIRM_EMAIL_HTML_CONTENT.format('127.0.0.1:8000', code, settings.CONFIRM_DAYS)
-    msg = EmailMultiAlternatives(CONFIRM_EMIAL_SUBJECT, CONFIRM_EMAIL_TEXT_CONTENT, settings.EMAIL_HOST_USER, [email])
+    html_content = CONFIRM_EMAIL_HTML_CONTENT.format(HOST, code, CONFIRM_DAYS)
+    msg = EmailMultiAlternatives(CONFIRM_EMIAL_SUBJECT, CONFIRM_EMAIL_TEXT_CONTENT, EMAIL_HOST_USER, [email])
     msg.attach_alternative(html_content, "text/html")
     msg.send()
 
@@ -53,7 +55,7 @@ def refresh_captcha(request):
 
 
 # 验证验证码
-def jarge_captcha(captchaStr, captchaHashkey):
+def judge_captcha(captchaStr, captchaHashkey):
     if captchaStr and captchaHashkey:
         try:
             # 获取根据hashkey获取数据库中的response值
@@ -76,6 +78,10 @@ def setSession(request, roles):
         request.session['user_id'] = roles.uid
         request.session['user_name'] = roles.username
         request.session['role'] = 'user'
+    elif isinstance(roles, models.Teacher):
+        request.session['user_id'] = roles.uid
+        request.session['user_name'] = roles.username
+        request.session['role'] = 'teacher'
     else:
         raise Exception('roles类型错误')
 

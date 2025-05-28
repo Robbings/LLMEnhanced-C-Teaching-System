@@ -1,0 +1,463 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>系统登录</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="{% static 'login/css/style.css' %}">
+
+    <style>
+      #signup-form {
+        display: none;
+      }
+      .alert {
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid transparent;
+        border-radius: 4px;
+      }
+      .alert-danger {
+        color: #721c24;
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+      }
+      .alert-success {
+        color: #155724;
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+      }
+      .captcha-container {
+        position: relative;
+      }
+      .captcha-refresh {
+        cursor: pointer;
+        position: absolute;
+        right: 5px;
+        top: 5px;
+        background: rgba(0,0,0,0.7);
+        color: white;
+        border-radius: 3px;
+        padding: 2px 5px;
+        font-size: 12px;
+      }
+      .loading {
+        opacity: 0.6;
+        pointer-events: none;
+      }
+    </style>
+  </head>
+  <body>
+    <section class="ftco-section">
+       <div class="container">
+          <div class="row justify-content-center">
+             <div class="col-md-12 col-lg-10">
+                <div class="wrap d-md-flex">
+                   <div class="text-wrap p-4 p-lg-5 text-center d-flex align-items-center order-md-last">
+                      <div class="text w-100">
+                         <h2>欢迎使用基于大模型的C语言辅助教学系统</h2>
+                         <p id="login-text">还没有一个账号?</p>
+                         <p id="signup-text" style="display: none;">已有账号?</p>
+                         <a href="#" class="btn btn-white btn-outline-white" id="toggle-form">Sign Up</a>
+                      </div>
+                   </div>
+                   <div class="login-wrap p-4 p-lg-5">
+                     <div class="d-flex">
+                        <div class="w-100">
+                           <h3 class="mb-4" id="form-title">登录</h3>
+                        </div>
+                        <div class="w-100">
+                           <p class="social-media d-flex justify-content-end">
+                              <a href="#" class="social-icon d-flex align-items-center justify-content-center active" id="student-role" data-role="user" title="学生">
+                                <span class="fa fa-graduation-cap"></span>
+                              </a>
+                              <a href="#" class="social-icon d-flex align-items-center justify-content-center" id="teacher-role" data-role="teacher" title="教师">
+                                <span class="fa fa-user-circle"></span>
+                              </a>
+                           </p>
+                        </div>
+                     </div>
+
+                     <!-- Alert Messages -->
+                     <div id="alert-container"></div>
+
+                     <!-- Login Form -->
+                     <form action="#" class="signin-form" id="login-form">
+                        <div class="form-group mb-3">
+                           <label class="label" for="login-email">邮箱</label>
+                           <input type="email" class="form-control" id="login-email" name="email" placeholder="邮箱" required>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label class="label" for="login-password">密码</label>
+                            <input type="password" class="form-control" id="login-password" name="password" placeholder="密码" required>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label class="label" for="login-captcha">验证码</label>
+                            <input type="text" class="form-control" id="login-captcha" name="captcha" placeholder="验证码" required>
+                        </div>
+                        <div class="form-group mb-3">
+                            <div class="captcha-container">
+                                <img id="login-captcha-img" src="" alt="验证码" class="img-fluid d-block mx-auto" style="width: 120px; height: auto; cursor: pointer;">
+                                <span class="captcha-refresh" title="点击刷新">🔄</span>
+                            </div>
+                            <input type="hidden" id="login-captcha-hashkey" name="captcha_hashkey">
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="form-control btn btn-primary submit px-3" id="login-btn">登录</button>
+                        </div>
+                        <div class="form-group d-md-flex">
+                            <div class="w-50 text-left">
+                                <label class="checkbox-wrap checkbox-primary mb-0">记住密码
+                                    <input type="checkbox" id="remember-me">
+                                    <span class="checkmark"></span>
+                                </label>
+                            </div>
+                            <div class="w-50 text-md-right">
+                                <a href="#">忘记密码</a>
+                            </div>
+                        </div>
+                     </form>
+
+                     <!-- Registration Form -->
+                     <form action="#" class="signin-form" id="signup-form">
+                        <div class="form-group mb-3">
+                           <label class="label" for="signup-username">用户名</label>
+                           <input type="text" class="form-control" id="signup-username" name="username" placeholder="用户名" required>
+                        </div>
+                        <div class="form-group mb-3">
+                           <label class="label" for="signup-email">邮箱</label>
+                           <input type="email" class="form-control" id="signup-email" name="email" placeholder="邮箱" required>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label class="label" for="signup-password">密码</label>
+                            <input type="password" class="form-control" id="signup-password" name="password" placeholder="密码" required>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label class="label" for="signup-confirm-password">确认密码</label>
+                            <input type="password" class="form-control" id="signup-confirm-password" name="confirm_password" placeholder="确认密码" required>
+                        </div>
+
+                        <div class="form-group">
+                            <button type="submit" class="form-control btn btn-primary submit px-3" id="signup-btn">注册</button>
+                        </div>
+                     </form>
+                   </div>
+                </div>
+             </div>
+          </div>
+       </div>
+    </section>
+
+    <script src="{% static 'login/js/jquery.min.js' %}"></script>
+    <script src="{% static 'login/js/popper.js' %}"></script>
+    <script src="{% static 'login/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'login/js/main.js' %}"></script>
+
+    <script>
+      $(document).ready(function() {
+        // CSRF Token setup
+        const csrftoken = $('meta[name=csrf-token]').attr('content');
+
+        // 获取CSRF token的函数
+        function getCSRFToken() {
+            return $('input[name=csrfmiddlewaretoken]').val() || csrftoken;
+        }
+        // 角色选择功能
+        let currentRole = 'user'; // 默认为学生
+
+        // 角色切换点击事件
+        $('.social-icon').click(function(e) {
+            e.preventDefault();
+
+            // 移除所有活动状态
+            $('.social-icon').removeClass('active');
+
+            // 添加活动状态到当前点击的图标
+            $(this).addClass('active');
+
+            // 更新当前角色
+            currentRole = $(this).data('role');
+        });
+
+        // 获取当前选中的角色
+        function getCurrentRole() {
+            return currentRole;
+        }
+
+        // 显示消息
+        function showMessage(message, type = 'danger') {
+            const alertHtml = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            `;
+            $('#alert-container').html(alertHtml);
+
+            // 3秒后自动隐藏
+            setTimeout(() => {
+                $('#alert-container .alert').fadeOut();
+            }, 3000);
+        }
+
+        // 清除消息
+        function clearMessages() {
+            $('#alert-container').empty();
+        }
+
+        // 刷新验证码
+        function refreshCaptcha() {
+            $.ajax({
+                url: '/user/refresh_captcha',
+                type: 'GET',
+                success: function(response) {
+                    $('#login-captcha-img').attr('src', response.image_url);
+                    $('#login-captcha-hashkey').val(response.hashkey);
+                },
+                error: function() {
+                    showMessage('验证码加载失败，请重试');
+                }
+            });
+        }
+
+        // 页面加载时获取验证码
+        refreshCaptcha();
+
+        // 点击验证码图片刷新
+        $(document).on('click', '#login-captcha-img, .captcha-refresh', function() {
+            refreshCaptcha();
+        });
+
+        // 表单切换
+        $("#toggle-form").click(function(e) {
+          e.preventDefault();
+          clearMessages();
+
+          if ($("#login-form").is(":visible")) {
+            // Switch to signup form
+            $("#login-form").hide();
+            $("#signup-form").show();
+            $("#form-title").text("注册");
+            $("#toggle-form").text("Log In");
+            $("#login-text").hide();
+            $("#signup-text").show();
+          } else {
+            // Switch to login form
+            $("#signup-form").hide();
+            $("#login-form").show();
+            $("#form-title").text("登录");
+            $("#toggle-form").text("Sign Up");
+            $("#signup-text").hide();
+            $("#login-text").show();
+            // 切换到登录表单时刷新验证码
+            refreshCaptcha();
+          }
+        });
+
+        // 登录表单提交
+        $('#login-form').submit(function(e) {
+            e.preventDefault();
+
+            const $form = $(this);
+            const $submitBtn = $('#login-btn');
+            const originalBtnText = $submitBtn.text();
+
+            // 验证表单
+            const email = $('#login-email').val().trim();
+            const password = $('#login-password').val();
+            const captcha = $('#login-captcha').val().trim();
+            const role = getCurrentRole(); // 使用角色选择功能获取角色
+            const captchaHashkey = $('#login-captcha-hashkey').val();
+
+            if (!email || !password || !captcha || !role) {
+                showMessage('请填写所有必填字段');
+                return;
+            }
+
+            if (!captchaHashkey) {
+                showMessage('验证码未加载，请刷新页面重试');
+                refreshCaptcha();
+                return;
+            }
+
+            // 禁用提交按钮
+            $submitBtn.prop('disabled', true).text('登录中...');
+            $form.addClass('loading');
+            clearMessages();
+
+            // 提交数据
+            $.ajax({
+                url: '/user/login',
+                type: 'POST',
+                data: {
+                    email: email,
+                    password: password,
+                    captchaCode: captcha,
+                    captchaHashkey: captchaHashkey,
+                    role: role,
+                    csrfmiddlewaretoken: getCSRFToken()
+                },
+                success: function(response) {
+                    if (response.code === 200) {
+                        showMessage(response.message || '登录成功', 'success');
+                        // 延迟跳转
+                        setTimeout(() => {
+                            window.location.href = '/analysis/problems';
+                        }, 1000);
+                    } else {
+                        showMessage(response.message || '登录失败');
+                        //如果已经登录，则跳转到问题分析页面
+                        if (response.message && response.message.includes('已经登录')) {
+                            // 延迟跳转
+                            setTimeout(() => {
+                                window.location.href = '/analysis/problems';
+                            }, 1000);
+                        }
+                        // 如果返回了新的验证码，更新验证码
+                        if (response.captcha) {
+                            $('#login-captcha-img').attr('src', response.captcha.image_url);
+                            $('#login-captcha-hashkey').val(response.captcha.hashkey);
+                            $('#login-captcha').val('');
+                        } else {
+                            refreshCaptcha();
+                        }
+                    }
+                },
+                error: function(xhr) {
+                    let errorMessage = '登录失败，请重试';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message;
+                    }
+                    showMessage(errorMessage);
+                    refreshCaptcha();
+                },
+                complete: function() {
+                    // 恢复提交按钮
+                    $submitBtn.prop('disabled', false).text(originalBtnText);
+                    $form.removeClass('loading');
+                }
+            });
+        });
+
+        // 注册表单提交
+        $('#signup-form').submit(function(e) {
+            e.preventDefault();
+
+            const $form = $(this);
+            const $submitBtn = $('#signup-btn');
+            const originalBtnText = $submitBtn.text();
+
+            // 验证表单
+            const username = $('#signup-username').val().trim();
+            const email = $('#signup-email').val().trim();
+            const password = $('#signup-password').val();
+            const confirmPassword = $('#signup-confirm-password').val();
+            const role = getCurrentRole(); // 使用角色选择功能获取角色
+
+            if (!username || !email || !password || !confirmPassword) {
+                showMessage('请填写所有必填字段');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showMessage('两次输入的密码不一致');
+                return;
+            }
+
+            if (password.length < 6) {
+                showMessage('密码长度至少6位');
+                return;
+            }
+
+            // 简单的邮箱格式验证
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showMessage('请输入有效的邮箱地址');
+                return;
+            }
+
+            // 禁用提交按钮
+            $submitBtn.prop('disabled', true).text('注册中...');
+            $form.addClass('loading');
+            clearMessages();
+
+            // 提交数据
+            $.ajax({
+                url: '/user/register',
+                type: 'POST',
+                data: {
+                    username: username,
+                    email: email,
+                    password: password,
+                    role: role,
+                    csrfmiddlewaretoken: getCSRFToken()
+                },
+                success: function(response) {
+                    if (response.code === 200) {
+                        showMessage(response.message || '注册成功，请查收邮件激活账户', 'success');
+                        // 3秒后切换到登录表单
+                        setTimeout(() => {
+                            $('#toggle-form').click();
+                            // 清空注册表单
+                            $form[0].reset();
+                        }, 2000);
+                    } else {
+                        showMessage(response.message || '注册失败');
+                    }
+                },
+                error: function(xhr) {
+                    let errorMessage = '注册失败，请重试';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message;
+                    } else if (xhr.status === 400) {
+                        errorMessage = '请检查输入信息是否正确';
+                    }
+                    showMessage(errorMessage);
+                },
+                complete: function() {
+                    // 恢复提交按钮
+                    $submitBtn.prop('disabled', false).text(originalBtnText);
+                    $form.removeClass('loading');
+                }
+            });
+        });
+
+        // 记住密码功能（简单实现，仅保存邮箱）
+        $('#remember-me').change(function() {
+            if ($(this).is(':checked')) {
+                const email = $('#login-email').val();
+                if (email) {
+                    localStorage.setItem('remembered_email', email);
+                }
+            } else {
+                localStorage.removeItem('remembered_email');
+            }
+        });
+
+        // 页面加载时恢复记住的邮箱
+        const rememberedEmail = localStorage.getItem('remembered_email');
+        if (rememberedEmail) {
+            $('#login-email').val(rememberedEmail);
+            $('#remember-me').prop('checked', true);
+        }
+
+        // 当邮箱输入框失去焦点时，如果勾选了记住密码，则保存邮箱
+        $('#login-email').blur(function() {
+            if ($('#remember-me').is(':checked')) {
+                const email = $(this).val();
+                if (email) {
+                    localStorage.setItem('remembered_email', email);
+                }
+            }
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -20,7 +20,6 @@ Output: ch: a repeated character in str
 3:     return ch
 4: return None
 
-Please understand the requirement and write a rough solvingprocess. It starts with a input-output structure. You should use three basic structures to build the solving process, including sequences, branches, and loops. The necessary details should be written in natural languages.
 """
 
 user_prompt_deco = """

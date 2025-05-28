@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>删除题目确认 - 智能教学系统</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .delete-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 90%;
+            overflow: hidden;
+        }
+
+        .header-section {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .content-section {
+            padding: 2rem;
+        }
+
+        .warning-icon {
+            font-size: 4rem;
+            color: #ef4444;
+            margin-bottom: 1rem;
+        }
+
+        .problem-info {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .problem-detail {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn-danger-custom {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            border: none;
+            border-radius: 12px;
+            padding: 0.75rem 2rem;
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-danger-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+            color: white;
+        }
+
+        .btn-secondary-custom {
+            background: linear-gradient(135deg, #6b7280, #4b5563);
+            border: none;
+            border-radius: 12px;
+            padding: 0.75rem 2rem;
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(107, 114, 128, 0.4);
+            color: white;
+        }
+
+        .warning-list {
+            background: #fffbeb;
+            border: 1px solid #fed7aa;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .warning-list ul {
+            margin: 0;
+            padding-left: 1.5rem;
+        }
+
+        .warning-list li {
+            margin-bottom: 0.5rem;
+            color: #92400e;
+        }
+
+        .stats-row {
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .stat-item {
+            flex: 1;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #dc2626;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+
+        .confirmation-checkbox {
+            background: #fef2f2;
+            border: 2px solid #fecaca;
+            border-radius: 12px;
+            padding: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .form-check-input:checked {
+            background-color: #ef4444;
+            border-color: #ef4444;
+        }
+
+        .delete-btn-container {
+            margin-top: 2rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="delete-container">
+        <!-- Header -->
+        <div class="header-section">
+            <i class="fas fa-exclamation-triangle warning-icon"></i>
+            <h2>确认删除题目</h2>
+            <p class="mb-0">此操作不可撤销，请仔细确认</p>
+        </div>
+
+        <!-- Content -->
+        <div class="content-section">
+            <!-- 题目信息 -->
+            <div class="problem-info">
+                <h5 class="text-danger mb-3">
+                    <i class="fas fa-file-alt"></i> 即将删除的题目
+                </h5>
+
+                <div class="problem-detail">
+                    <span><strong>题目名称：</strong></span>
+                    <span>{{ problem.name }}</span>
+                </div>
+
+                <div class="problem-detail">
+                    <span><strong>所属班级：</strong></span>
+                    <span>{{ problem.clazz|default:"所有班级" }}</span>
+                </div>
+
+                <div class="problem-detail">
+                    <span><strong>题目类型：</strong></span>
+                    <span>
+                        {% if problem.problem_type == 1 %}任务分解
+                        {% elif problem.problem_type == 2 %}代码编写
+                        {% else %}整体训练{% endif %}
+                    </span>
+                </div>
+
+                <div class="problem-detail">
+                    <span><strong>创建时间：</strong></span>
+                    <span>{{ problem.created_at|date:"Y-m-d H:i" }}</span>
+                </div>
+
+                {% if problem.deadline %}
+                <div class="problem-detail">
+                    <span><strong>截止时间：</strong></span>
+                    <span>{{ problem.deadline|date:"Y-m-d H:i" }}</span>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- 统计信息 -->
+            <div class="stats-row">
+                <div class="stat-item">
+                    <div class="stat-number">{{ problem.student_submissions.count }}</div>
+                    <div class="stat-label">学生提交</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">{{ passed_count }}</div>
+                    <div class="stat-label">通过数量</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">{{ problem.view_records.count }}</div>
+                    <div class="stat-label">查看次数</div>
+                </div>
+            </div>
+
+            <!-- 警告信息 -->
+            <div class="warning-list">
+                <h6 class="text-warning mb-2">
+                    <i class="fas fa-exclamation-triangle"></i> 删除此题目将会：
+                </h6>
+                <ul>
+                    <li>永久删除题目内容和配置信息</li>
+                    <li>删除所有学生的提交记录</li>
+                    <li>删除所有相关的评测报告</li>
+                    <li>删除题目的查看历史记录</li>
+                    <li>此操作无法撤销，请谨慎操作</li>
+                </ul>
+            </div>
+
+            <!-- 确认表单 -->
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="confirmation-checkbox">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="confirmDelete" required>
+                        <label class="form-check-label text-danger" for="confirmDelete">
+                            <strong>我已理解删除的后果，确认要删除题目 "{{ problem.name }}"</strong>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="delete-btn-container">
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                        <a href="{% url 'Analysis:view_problem' problem.id %}"
+                           class="btn btn-secondary-custom me-md-2">
+                            <i class="fas fa-times"></i> 取消
+                        </a>
+                        <button type="submit" class="btn btn-danger-custom" id="deleteBtn" disabled>
+                            <i class="fas fa-trash-alt"></i> 确认删除
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- 额外提示 -->
+            <div class="mt-4 text-center">
+                <small class="text-muted">
+                    <i class="fas fa-info-circle"></i>
+                    如果您只是想暂时停用题目，建议修改截止时间而不是删除
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 确认复选框控制删除按钮
+        document.getElementById('confirmDelete').addEventListener('change', function() {
+            const deleteBtn = document.getElementById('deleteBtn');
+            if (this.checked) {
+                deleteBtn.disabled = false;
+                deleteBtn.classList.remove('btn-secondary');
+                deleteBtn.classList.add('btn-danger-custom');
+            } else {
+                deleteBtn.disabled = true;
+                deleteBtn.classList.remove('btn-danger-custom');
+                deleteBtn.classList.add('btn-secondary');
+            }
+        });
+
+        // 防止意外提交
+        document.querySelector('form').addEventListener('submit', function(e) {
+            if (!document.getElementById('confirmDelete').checked) {
+                e.preventDefault();
+                alert('请先勾选确认复选框');
+                return false;
+            }
+
+            // 最后一次确认
+            if (!confirm('您确定要删除这个题目吗？此操作不可撤销！')) {
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        // 添加键盘事件监听
+        document.addEventListener('keydown', function(e) {
+            // ESC键取消
+            if (e.key === 'Escape') {
+                window.location.href = "{% url 'Analysis:view_problem' problem.id %}";
+            }
+        });
+    </script>
+</body>
+</html>

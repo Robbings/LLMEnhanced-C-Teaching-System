@@ -1,8 +1,8 @@
 from django.urls import path, include
 
 from Identity import views
+from Tasks.views import ChatCompletionView
 
 urlpatterns = [
-    # 身份认证部分
-    # path('login', auth.login),  # 登录
+    path('v1/chat/completions',  ChatCompletionView.as_view(), name='chat-completion'),
 ]

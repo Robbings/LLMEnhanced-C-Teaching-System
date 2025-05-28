@@ -99,23 +99,6 @@ vector_store = Chroma(
     persist_directory=PROJECT_PATH + '\\Pre_build\\chroma_langchain_db',  # Where to save data locally, remove if not necessary
 )
 
-#########################################
-# directory = PROJECT_PATH + "\\Pre_build\\unity_documents"
-# files = []
-# for filename in os.listdir(directory):
-#     if filename.endswith(".md"):
-#         files.append(os.path.join(directory, filename))
-#
-# for file in files:
-#     Logger.info(f"Processing file: {file}")
-#     loader = TextLoader(file, encoding = 'UTF-8')
-#     docs = loader.load()
-#     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
-#     all_splits = text_splitter.split_documents(docs)
-#     _ = vector_store.add_documents(documents=all_splits)
-# Logger.info("All documents have been added to the vector store.")
-########################################
-
 retriever = vector_store.as_retriever()
 retriever_tool = create_retriever_tool(
     retriever,
@@ -195,21 +178,41 @@ def create_subflow():
 
 if __name__ == "__main__":
     input = """
-// 判断一个数是否为质数
-bool is_prime(int n) {
-    if (n <= 1) return false;
-    for (int i = 2; i * i <= n; i++) {
-        if (n % i == 0) return false;
+#include <iostream>
+#include <windows.h>
+
+using namespace std;
+
+int su[100000];
+int size;
+int find(int left, int right, int a);
+
+
+
+void cal_su(int b) {
+    int i = 1;
+    su[0] = 2;
+    for (int j = 3; j < b; j += 2)
+    {
+        bool flag = true;
+        for (int k = 0; k < i; k++)
+        {
+            if (j % su[k] == 0)
+            {
+                flag = false;
+                break;
+            }
+            
+        }
+        if (flag)
+        {
+            su[i++] = j;
+        }
     }
-    return true;
+    size = i;
 }
     """
     subflow = create_subflow()
-    # for step in subflow.stream(
-    #         {"messages": [{"role": "user", "content": input}]},
-    #         stream_mode="values",
-    # ):
-    #     print(step["messages"][-1])
     response = subflow.invoke(
         {"messages": [{"role": "user", "content": input}]},
     )

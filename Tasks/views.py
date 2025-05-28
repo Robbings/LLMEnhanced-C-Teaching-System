@@ -54,6 +54,7 @@ class ChatCompletionView(APIView):
             return Response(response, status=status.HTTP_200_OK)
 
     def stream_response(self, backend, messages, temperature):
+
         for chunk in backend.chat(messages):
             content = {
                 "id": "chatcmpl-streaming",

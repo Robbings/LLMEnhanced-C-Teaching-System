@@ -1,0 +1,146 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>系统登录</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="{% static 'login/css/style.css' %}">
+
+    <style>
+      #signup-form {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <section class="ftco-section">
+       <div class="container">
+          <div class="row justify-content-center">
+             <div class="col-md-12 col-lg-10">
+                <div class="wrap d-md-flex">
+                   <div class="text-wrap p-4 p-lg-5 text-center d-flex align-items-center order-md-last">
+                      <div class="text w-100">
+                         <h2>欢迎使用基于大模型的C语言辅助教学系统</h2>
+                         <p id="login-text">还没有一个账号?</p>
+                         <p id="signup-text" style="display: none;">已有账号?</p>
+                         <a href="#" class="btn btn-white btn-outline-white" id="toggle-form">Sign Up</a>
+                      </div>
+                   </div>
+                   <div class="login-wrap p-4 p-lg-5">
+                     <div class="d-flex">
+                        <div class="w-100">
+                           <h3 class="mb-4" id="form-title">登录</h3>
+                        </div>
+                        <div class="w-100">
+                           <p class="social-media d-flex justify-content-end">
+                              <a href="#" class="social-icon d-flex align-items-center justify-content-center"><span class="fa fa-facebook"></span></a>
+                              <a href="#" class="social-icon d-flex align-items-center justify-content-center"><span class="fa fa-twitter"></span></a>
+                           </p>
+                        </div>
+                     </div>
+                     <!-- Login Form -->
+                     <form action="#" class="signin-form" id="login-form">
+                        <div class="form-group mb-3">
+                           <label class="label" for="email">邮箱</label>
+                           <input type="text" class="form-control" placeholder="邮箱" required>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label class="label" for="password">密码</label>
+                            <input type="password" class="form-control" placeholder="密码" required>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label class="label" for="code">验证码</label>
+                            <input type="text" class="form-control" placeholder="验证码" required>
+                        </div>
+                        <div class="form-group mb-3">
+                            <img src="{% static 'login/images/code.png' %}" alt="code" class="img-fluid d-block mx-auto" style="width: 120px; height: auto;">
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="form-control btn btn-primary submit px-3">登录</button>
+                        </div>
+                        <div class="form-group d-md-flex">
+                            <div class="w-50 text-left">
+                                <label class="checkbox-wrap checkbox-primary mb-0">记住密码
+                                    <input type="checkbox" checked>
+                                    <span class="checkmark"></span>
+                                </label>
+                            </div>
+                            <div class="w-50 text-md-right">
+                                <a href="#">忘记密码</a>
+                            </div>
+                        </div>
+                     </form>
+
+                     <!-- Registration Form -->
+                     <form action="#" class="signin-form" id="signup-form">
+                        <div class="form-group mb-3">
+                           <label class="label" for="username">用户名</label>
+                           <input type="text" class="form-control" placeholder="用户名" required>
+                        </div>
+                        <div class="form-group mb-3">
+                           <label class="label" for="email">邮箱</label>
+                           <input type="email" class="form-control" placeholder="邮箱" required>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label class="label" for="password">密码</label>
+                            <input type="password" class="form-control" placeholder="密码" required>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label class="label" for="confirm-password">确认密码</label>
+                            <input type="password" class="form-control" placeholder="确认密码" required>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label class="label" for="code">验证码</label>
+                            <input type="text" class="form-control" placeholder="验证码" required>
+                        </div>
+                        <div class="form-group mb-3">
+                            <img src="{% static 'login/images/code.png' %}" alt="code" class="img-fluid d-block mx-auto" style="width: 120px; height: auto;">
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="form-control btn btn-primary submit px-3">注册</button>
+                        </div>
+                     </form>
+                   </div>
+                </div>
+             </div>
+          </div>
+       </div>
+    </section>
+
+    <script src="{% static 'login/js/jquery.min.js' %}"></script>
+    <script src="{% static 'login/js/popper.js' %}"></script>
+    <script src="{% static 'login/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'login/js/main.js' %}"></script>
+
+    <script>
+      $(document).ready(function() {
+        // Toggle between login and signup forms
+        $("#toggle-form").click(function(e) {
+          e.preventDefault();
+
+          if ($("#login-form").is(":visible")) {
+            // Switch to signup form
+            $("#login-form").hide();
+            $("#signup-form").show();
+            $("#form-title").text("注册");
+            $("#toggle-form").text("Log In");
+            $("#login-text").hide();
+            $("#signup-text").show();
+          } else {
+            // Switch to login form
+            $("#signup-form").hide();
+            $("#login-form").show();
+            $("#form-title").text("登录");
+            $("#toggle-form").text("Sign Up");
+            $("#signup-text").hide();
+            $("#login-text").show();
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

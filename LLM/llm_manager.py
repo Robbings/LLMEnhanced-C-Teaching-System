@@ -20,3 +20,8 @@ def get_llm_use_tool():
 
 def get_llm_use_tool_stream():
     return llm_use_tool_stream
+
+def get_long_text_llm_stream():
+    return llm_stream
+
+# def get_long_text_llm_no_stream():

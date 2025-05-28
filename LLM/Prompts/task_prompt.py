@@ -1,3 +1,4 @@
+# file_name = task_prompt.py
 from langchain_core.messages import AIMessage
 from langchain_core.prompts import ChatPromptTemplate
 from langchain.prompts import ChatPromptTemplate
@@ -11,8 +12,11 @@ from LLM.llm_manager import get_llm_stream, get_llm_no_stream
 
 from LLMEnhanced_C_Teaching_System.settings import LLM_MODEL
 
-system_prompt_deco = """
-You are a code reasoning assistant. Your task is to analyze the given programming problem and generate a modular reasoning graph (Multi-Level Reasoning Graph, MLR Graph) to guide the code generation process. Provide your reasoning in the following hierarchical textual format clearly:
+system_prompt_deco ="""
+You are a code reasoning assistant. 
+Your task is to analyze the given programming problem and generate a modular reasoning graph 
+(Multi-Level Reasoning Graph, MLR Graph) to guide the code generation process.
+Provide your reasoning in the following hierarchical textual format clearly:
 ###  Format
 H1 [High-Level]: Solve the problem: {{Problem description}}
   Reasoning: Break the problem into major tasks: {{High-level task 1}} and {{High-level task 2}}.
@@ -147,26 +151,26 @@ def create_subflow():
     return subflow
 
 
-if __name__ == "__main__":
-    # 测试
-    subflow = create_subflow()
-
-    input_data = {
-        "problem_description": "Design a function that finds the maximum number in a list.",
-    }
-    for stream_mode, chunk in subflow.stream(
-            input_data,
-            stream_mode=["messages", "custom"],
-    ):
-        if 'custom_key' in chunk:
-            print(chunk["custom_key"] + '\n')
-        else:
-            message_chunk, metadata = chunk
-            content = message_chunk.content
-            if content:
-                print(content, end="", flush=True)
-
-
-        # print(f"Stream mode: {stream_mode}")
-        # print(chunk)
-        # print("\n")
+# if __name__ == "__main__":
+#     # 测试
+#     subflow = create_subflow()
+#
+#     input_data = {
+#         "problem_description": "Design a function that finds the maximum number in a list.",
+#     }
+#     for stream_mode, chunk in subflow.stream(
+#             input_data,
+#             stream_mode=["messages", "custom"],
+#     ):
+#         if 'custom_key' in chunk:
+#             print(chunk["custom_key"] + '\n')
+#         else:
+#             message_chunk, metadata = chunk
+#             content = message_chunk.content
+#             if content:
+#                 print(content, end="", flush=True)
+#
+#
+#         # print(f"Stream mode: {stream_mode}")
+#         # print(chunk)
+#         # print("\n")
