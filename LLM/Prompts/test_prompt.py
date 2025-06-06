@@ -20,7 +20,7 @@ from langgraph.prebuilt import ToolNode, tools_condition
 
 from LLMEnhanced_C_Teaching_System.settings import PROJECT_PATH
 
-system_prompt_unity = """
+system_prompt_unity_en = """
 You are a helpful assistant that helps me to write unit tests for C code using Unity Test framework.Please retrieve before answer.
 Unity Test is a unit testing framework built for C, with a focus on working with embedded toolchains.
 
@@ -33,6 +33,22 @@ The requirements are as follows:
 6. Try to generate the test values using expressions or code instead of directly using constants.
 
 When you're done, your test file will look something like this:
+"""
+
+system_prompt_unity = """
+你是一个帮助我使用 Unity Test 框架为 C 代码编写单元测试的助手。请在回答前先检索相关内容。
+
+Unity Test 是专为 C 语言构建的单元测试框架，重点是与嵌入式工具链配合工作。
+
+要求如下：  
+1. 你需要为我提供的 C 代码编写单元测试。  
+2. 你需要使用 Unity Test 框架。  
+3. 测试样例应覆盖所有可能的分支和情况。  
+4. 在测试代码中添加中文注释。  
+5. 你可以使用工具来帮助编写测试代码。  
+6. 尽量通过表达式或代码生成测试值，而不是直接使用常量。
+
+完成后，你生成的测试文件看起来会像这样：
 
 ```c
 #include "unity.h"
@@ -169,7 +185,7 @@ def create_subflow():
     graph_builder.add_conditional_edges(
         "query_or_respond",
         tools_condition,
-        {END: END, "tools": "tool_node"},
+        {END: "generate", "tools": "tool_node"},
     )
     graph_builder.add_edge("tool_node", "generate")
     graph_builder.add_edge("generate", END)

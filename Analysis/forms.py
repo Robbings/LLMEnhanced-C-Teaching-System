@@ -154,12 +154,12 @@ class StudentSubmissionForm(forms.ModelForm):
             }),
             'sample_content': forms.Textarea(attrs={
                 'rows': 8,
-                'placeholder': '请输入测试样例，格式：\n输入1\n输出1\n输入2\n输出2\n...',
+                'placeholder': '请输入测试样例...',
                 'class': 'form-control font-monospace'
             }),
             'sample_file': forms.FileInput(attrs={
                 'class': 'form-control',
-                'accept': '.txt,.in,.out'
+                'accept': '.txt,.c'
             })
         }
         labels = {

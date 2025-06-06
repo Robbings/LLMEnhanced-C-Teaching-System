@@ -204,7 +204,7 @@
                     </div>
 
                     <!-- 测试样例提交部分（如果需要） -->
-                    {% if problem.requires_sample %}
+                    {% if problem.requires_sample == 1 %}
                     <div class="mb-4">
                         <h5><i class="fas fa-vial"></i> 测试样例提交</h5>
 
@@ -249,7 +249,7 @@
                                 {{ form.sample_file }}
                                 <div class="mt-2">
                                     <i class="fas fa-cloud-upload-alt fa-2x text-muted"></i>
-                                    <p class="text-muted mt-2">支持 .txt, .in, .out 等格式</p>
+                                    <p class="text-muted mt-2">支持 .txt, .c 等格式</p>
                                 </div>
                             </div>
                             {% if form.sample_file.errors %}
@@ -284,75 +284,96 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script>
-        // 代码提交方式切换
-        document.querySelectorAll('input[name="code_input_method"]').forEach(radio => {
-            radio.addEventListener('change', function() {
-                const textArea = document.getElementById('code_text_area');
-                const fileArea = document.getElementById('code_file_area');
+        // 等待页面完全加载后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 代码提交方式切换
+            const codeRadios = document.querySelectorAll('input[name="code_input_method"]');
+            codeRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const textArea = document.getElementById('code_text_area');
+                    const fileArea = document.getElementById('code_file_area');
 
-                if (this.value === 'text') {
-                    textArea.style.display = 'block';
-                    fileArea.style.display = 'none';
-                    // 清空文件输入
-                    document.querySelector('input[name="code_file"]').value = '';
-                } else {
-                    textArea.style.display = 'none';
-                    fileArea.style.display = 'block';
-                    // 清空文本输入
-                    document.querySelector('textarea[name="code_content"]').value = '';
-                }
-            });
-        });
-
-        // 样例提交方式切换
-        document.querySelectorAll('input[name="sample_input_method"]').forEach(radio => {
-            radio.addEventListener('change', function() {
-                const textArea = document.getElementById('sample_text_area');
-                const fileArea = document.getElementById('sample_file_area');
-
-                if (this.value === 'text') {
-                    textArea.style.display = 'block';
-                    fileArea.style.display = 'none';
-                    // 清空文件输入
-                    document.querySelector('input[name="sample_file"]').value = '';
-                } else {
-                    textArea.style.display = 'none';
-                    fileArea.style.display = 'block';
-                    // 清空文本输入
-                    document.querySelector('textarea[name="sample_content"]').value = '';
-                }
-            });
-        });
-
-        // 文件拖拽上传
-        ['code_file_area', 'sample_file_area'].forEach(areaId => {
-            const area = document.getElementById(areaId);
-            if (area) {
-                const fileInput = area.querySelector('input[type="file"]');
-
-                area.addEventListener('dragover', function(e) {
-                    e.preventDefault();
-                    this.style.backgroundColor = '#f0fdf4';
-                    this.style.borderColor = '#10b981';
-                });
-
-                area.addEventListener('dragleave', function(e) {
-                    e.preventDefault();
-                    this.style.backgroundColor = '';
-                    this.style.borderColor = '#cbd5e0';
-                });
-
-                area.addEventListener('drop', function(e) {
-                    e.preventDefault();
-                    this.style.backgroundColor = '';
-                    this.style.borderColor = '#cbd5e0';
-
-                    const files = e.dataTransfer.files;
-                    if (files.length > 0) {
-                        fileInput.files = files;
+                    if (textArea && fileArea) {
+                        if (this.value === 'text') {
+                            textArea.style.display = 'block';
+                            fileArea.style.display = 'none';
+                            // 清空文件输入
+                            const fileInput = document.querySelector('input[name="code_file"]');
+                            if (fileInput) fileInput.value = '';
+                        } else {
+                            textArea.style.display = 'none';
+                            fileArea.style.display = 'block';
+                            // 清空文本输入
+                            const textInput = document.querySelector('textarea[name="code_content"]');
+                            if (textInput) textInput.value = '';
+                        }
                     }
                 });
+            });
+
+            // 样例提交方式切换（只在需要样例的情况下执行）
+            const sampleRadios = document.querySelectorAll('input[name="sample_input_method"]');
+            if (sampleRadios.length > 0) {
+                sampleRadios.forEach(radio => {
+                    radio.addEventListener('change', function() {
+                        const textArea = document.getElementById('sample_text_area');
+                        const fileArea = document.getElementById('sample_file_area');
+
+                        if (textArea && fileArea) {
+                            if (this.value === 'text') {
+                                textArea.style.display = 'block';
+                                fileArea.style.display = 'none';
+                                // 清空文件输入
+                                const fileInput = document.querySelector('input[name="sample_file"]');
+                                if (fileInput) fileInput.value = '';
+                            } else {
+                                textArea.style.display = 'none';
+                                fileArea.style.display = 'block';
+                                // 清空文本输入
+                                const textInput = document.querySelector('textarea[name="sample_content"]');
+                                if (textInput) textInput.value = '';
+                            }
+                        }
+                    });
+                });
             }
+
+            // 文件拖拽上传功能
+            function setupDragAndDrop(areaId) {
+                const area = document.getElementById(areaId);
+                if (area) {
+                    const fileInput = area.querySelector('input[type="file"]');
+
+                    if (fileInput) {
+                        area.addEventListener('dragover', function(e) {
+                            e.preventDefault();
+                            this.style.backgroundColor = '#f0fdf4';
+                            this.style.borderColor = '#10b981';
+                        });
+
+                        area.addEventListener('dragleave', function(e) {
+                            e.preventDefault();
+                            this.style.backgroundColor = '';
+                            this.style.borderColor = '#cbd5e0';
+                        });
+
+                        area.addEventListener('drop', function(e) {
+                            e.preventDefault();
+                            this.style.backgroundColor = '';
+                            this.style.borderColor = '#cbd5e0';
+
+                            const files = e.dataTransfer.files;
+                            if (files.length > 0) {
+                                fileInput.files = files;
+                            }
+                        });
+                    }
+                }
+            }
+
+            // 为代码和样例文件区域设置拖拽上传
+            setupDragAndDrop('code_file_area');
+            setupDragAndDrop('sample_file_area');
         });
     </script>
 </body>
